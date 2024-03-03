@@ -1,0 +1,3 @@
+# dominogod
+
+become god.

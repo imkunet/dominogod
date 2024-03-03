@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Delius+Unicase:wght@700&family=Inter:wght@100..900&display=swap');
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  color-scheme: var(--theme);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* variables */
+  --theme: light;
+
+  --color-bg: #f4f4f4;
+  --color-text: #2c2c2c;
+  --color-text-secondary: #484848;
+  --color-link: rgb(106, 106, 255);
+
+  --game-tile-size: 8vmin;
+  --game-tiles: 7;
+
+  --game-tile-dark: #bebebe;
+  --game-tile-light: #cfcfcf;
+
+  --game-board-radius: 1.25vmin;
+  --game-board-border: #232323;
+  --game-board-border-thickness: 0.5vmin;
+  --game-board-size: calc(var(--game-tile-size) * var(--game-tiles));
+
+  --game-mino-border-thickness: var(--game-board-border-thickness);
+  --game-mino-border: #232323;
+  --game-mino-separator: #e7e7e7;
+  --game-mino-width: 0.75vmin;
+  --game-mino-pip-size: calc(var(--game-tile-size) / pi);
+
+  --game-unrevealed: rgba(255, 255, 255, 0.25);
+
+  --game-numbers-room: 2vmin;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--color-link);
+}
+
+a:visited {
+  color: var(--color-link);
+}
+
+@media screen and (orientation: portrait) {
+  :root {
+    --game-tile-size: calc(100vmin / 7 - var(--game-numbers-room));
+  }
+}

@@ -1,0 +1,68 @@
+.mino {
+  background: white;
+  position: relative;
+
+  outline: solid var(--game-mino-border-thickness) var(--game-board-border);
+  outline-offset: calc(var(--game-mino-border-thickness) * -0.5);
+  border-radius: var(--game-board-radius);
+}
+
+.mino > div {
+  display: block;
+  position: absolute;
+  content: '';
+
+  background: var(--game-board-border);
+  border-radius: 100%;
+
+  width: var(--game-mino-pip-size);
+  height: var(--game-mino-pip-size);
+}
+
+.mino::after {
+  display: block;
+  position: absolute;
+  content: '';
+
+  background: var(--game-mino-separator);
+  border-radius: 1rem;
+}
+
+.mino-one {
+  width: var(--game-tile-size);
+  height: calc(var(--game-tile-size) * 2);
+}
+
+.mino-one > div {
+  --pip-offset: calc(50% + var(--game-mino-pip-size) / 2);
+  translate: var(--pip-offset) var(--pip-offset);
+}
+
+.mino-one::after {
+  height: var(--game-mino-width);
+  width: 80%;
+
+  translate: 12% calc(var(--game-tile-size) - 50%);
+}
+
+.mino-two {
+  width: calc(var(--game-tile-size) * 2);
+  height: var(--game-tile-size);
+}
+
+.mino-two > div:nth-child(1) {
+  translate: calc(50% + var(--game-tile-size)) 50%;
+}
+
+.mino-two > div:nth-child(2) {
+  --pip-offset: calc(var(--game-mino-pip-size) / 2);
+  translate: calc(2 * var(--game-tile-size) - 100% - var(--pip-offset))
+    calc(var(--game-tile-size) - 100% - var(--pip-offset));
+}
+
+.mino-two::after {
+  height: 80%;
+  width: var(--game-mino-width);
+
+  translate: calc(var(--game-tile-size) - 50%) 12%;
+}
