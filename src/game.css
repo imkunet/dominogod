@@ -28,6 +28,10 @@
   grid-template-columns: repeat(7, 1fr);
 }
 
+.board > * {
+  pointer-events: none;
+}
+
 .info-container {
   width: calc(var(--game-board-size) + var(--game-board-border-thickness) / 2);
 
@@ -76,11 +80,11 @@
 
 .container {
   display: grid;
-  grid-template-columns: max(var(--game-numbers-room), 4.5vmin) max-content max(
+  grid-template-columns: max(var(--game-numbers-room), 7vmin) max-content max(
       var(--game-numbers-room),
-      4.5vmin
+      7vmin
     );
-  grid-template-rows: max(var(--game-numbers-room), 4.5vmin) auto;
+  grid-template-rows: max(var(--game-numbers-room), 7vmin) auto;
   justify-content: center;
 
   margin-left: auto;
@@ -121,6 +125,7 @@
   outline: none;
   background: var(--game-unrevealed);
   cursor: pointer;
+  pointer-events: all;
 
   font-size: 2rem;
   font-weight: 700;
@@ -132,22 +137,19 @@
   align-items: center;
   justify-content: center;
   width: full;
-  margin-top: 2rem;
+  margin-top: 1rem;
   gap: 2rem;
 }
 
-.mino-picker > div {
-  transition:
-    opacity 50ms ease-out,
-    scale 50ms ease-out;
-}
+.block {
+  display: flex;
+  background: var(--game-block-color);
+  position: relative;
 
-.mino-picker-inactive {
-  opacity: 0.75;
-  scale: 0.9;
-}
+  outline: solid var(--game-mino-border-thickness) var(--game-board-border);
+  outline-offset: calc(var(--game-mino-border-thickness) * -0.5);
+  border-radius: var(--game-board-radius);
 
-.mino-picker-active {
-  opacity: 1;
-  scale: 1;
+  grid-row-end: span 1;
+  grid-column-end: span 1;
 }

@@ -1,4 +1,5 @@
 import { Show } from 'solid-js';
+import { Motion } from 'solid-motionone';
 
 interface MinoProps {
   two?: boolean;
@@ -18,12 +19,18 @@ function Mino(props: MinoProps) {
 
   return (
     <>
-      <div class={`mino mino-${props.two ? 'two' : 'one'}`} style={style()}>
+      <Motion.div
+        class={`mino mino-${props.two ? 'two' : 'one'}`}
+        style={style()}
+        initial={{ rotate: 10, y: -10, opacity: 0 }}
+        animate={{ rotate: 0, y: 0, opacity: 1 }}
+        transition={{ duration: 0.15 }}
+      >
         <div />
         <Show when={props.two}>
           <div />
         </Show>
-      </div>
+      </Motion.div>
     </>
   );
 }

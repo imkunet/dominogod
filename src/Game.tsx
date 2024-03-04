@@ -1,11 +1,11 @@
 import { TbRefresh } from 'solid-icons/tb';
-import { For, Show, createSignal, onCleanup, onMount } from 'solid-js';
+import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 
 import './game.css';
 import './mino.css';
 import Mino from './components/Mino';
-
-type Cell = null | 'one' | 'one_complement' | 'two' | 'two_complement' | 'block';
+import { Motion } from 'solid-motionone';
+import { Cell, Grid, cellToValue, emptyGrid, generateGrid } from './generator';
 
 function Game() {
   // audio engine stuff
@@ -29,9 +29,8 @@ function Game() {
   };
 
   // game grid stuff
-  const [grid, setGrid] = createSignal<Cell[][]>(
-    new Array(7).map(() => new Array(7).map(() => null)),
-  );
+  const [gridSolution, setGridSolution] = createSignal<Grid>(generateGrid());
+  const [grid, setGrid] = createSignal<Grid>(emptyGrid());
 
   // mouse state tracking
   const [holding, setHolding] = createSignal(false);
@@ -45,11 +44,86 @@ function Game() {
   const [wizard, setWizard] = createSignal(true);
 
   const inGame = () => startTime() != -1;
+  const colNumbers = () => {
+    const solve = gridSolution();
+    const numbers = [];
+    for (let x = 0; x < 7; x++) {
+      let current = 0;
+      for (let y = 0; y < 7; y++) {
+        const cell = solve[x][y];
+        current += cellToValue(cell);
+      }
+      numbers.push(current);
+    }
+    return numbers;
+  };
+  const rowNumbers = () => {
+    const solve = gridSolution();
+    const numbers = [];
+    for (let y = 0; y < 7; y++) {
+      let current = 0;
+      for (let x = 0; x < 7; x++) {
+        const cell = solve[x][y];
+        current += cellToValue(cell);
+      }
+      numbers.push(current);
+    }
+    return numbers;
+  };
+  const isOutOfBounds = (x: number, y: number) => x < 0 || y < 0 || x > 6 || y > 6;
   const isOccupied = (x: number, y: number): boolean => {
     if (x < 0 || y < 0 || x > 6 || y > 6) return true;
     return grid()[x][y] != null;
   };
   const toggleTwoMode = () => setTwoMode(!twoMode());
+  const hoveredRowCol = (): [number, number] | null => {
+    const mouse = relativeMouseXY();
+    if (mouse == null) return null;
+
+    if (mouse[0] < 0 || mouse[1] < 0) return null;
+    const absX = (mouse[0] / boardElement.clientWidth) * 7;
+    let wholeX = Math.floor(absX);
+    const fractX = absX - wholeX;
+
+    const absY = (mouse[1] / boardElement.clientHeight) * 7;
+    let wholeY = Math.floor(absY);
+    const fractY = absY - wholeY;
+
+    if (grid()[wholeX][wholeY] == 'block') {
+      // ok now we're in a predicament where we need to shift based on fract
+      if (twoMode()) {
+        if (wholeX == 0) wholeX++;
+        if (fractX > 0.5) {
+          // test
+        }
+      }
+    }
+
+    if (twoMode()) {
+      if (wholeX > 0 && wholeX < 6) {
+        if (fractX < 0.5) --wholeX;
+      }
+      if (wholeX == 6) --wholeX;
+    } else {
+      if (wholeY > 0 && wholeY < 6) {
+        if (fractY < 0.5) --wholeY;
+      }
+      if (wholeY == 6) --wholeY;
+    }
+
+    return [wholeX, wholeY];
+  };
+  const hoverStyles = () => {
+    const pos = hoveredRowCol();
+    if (pos == null) return {};
+
+    return {
+      'grid-row-start': pos[1] + 1,
+      'grid-row-end': twoMode() ? 'span 1' : 'span 2',
+      'grid-column-start': pos[0] + 1,
+      'grid-column-end': twoMode() ? 'span 2' : 'span 1',
+    };
+  };
 
   let boardElement: HTMLDivElement;
 
@@ -95,6 +169,10 @@ function Game() {
     });
   });
 
+  createEffect(() => {
+    setGrid(gridSolution().map((v) => v.map((v1) => (v1 == 'block' ? 'block' : null))));
+  });
+
   return (
     <div class="game">
       <div class="info-container">
@@ -118,13 +196,31 @@ function Game() {
       <div class="container">
         <Show when={inGame()}>
           <div class="numbers numbers-top">
-            <For each={new Array(7)}>{() => <p>1</p>}</For>
+            <For each={colNumbers()}>
+              {(v) => (
+                <Motion.p initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+                  {v}
+                </Motion.p>
+              )}
+            </For>
           </div>
           <div class="numbers numbers-side">
-            <For each={new Array(7)}>{() => <p>1</p>}</For>
+            <For each={rowNumbers()}>
+              {(v) => (
+                <Motion.p initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+                  {v}
+                </Motion.p>
+              )}
+            </For>
           </div>
           <div class="numbers numbers-side">
-            <For each={new Array(7)}>{() => <p>1</p>}</For>
+            <For each={rowNumbers()}>
+              {(v) => (
+                <Motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+                  {v}
+                </Motion.p>
+              )}
+            </For>
           </div>
         </Show>
 
@@ -141,28 +237,67 @@ function Game() {
             </button>
           </Show>
           <Show when={inGame()}>
-            <Mino row={2} col={2} />
-            <Mino row={1} col={5} two />
+            <Show when={hoveredRowCol() != null}>
+              <div class="mino-select" style={hoverStyles()} />
+            </Show>
+            <For each={grid()}>
+              {(col, x) => (
+                <For each={col}>
+                  {(v, y) => {
+                    if (v == 'one' || v == 'two')
+                      return <Mino row={y() + 1} col={x() + 1} two={v == 'two'} />;
+                    if (v == 'block')
+                      return (
+                        <Motion.div
+                          style={{
+                            'grid-row-start': y() + 1,
+                            'grid-column-start': x() + 1,
+                          }}
+                          class="block"
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.15 }}
+                        />
+                      );
+                    return <></>;
+                  }}
+                </For>
+              )}
+            </For>
           </Show>
         </div>
       </div>
-      <div class="info-container mino-picker">
-        <Show when={inGame()}>
-          <div
+      <Show when={inGame()}>
+        <Motion.div
+          class="info-container mino-picker"
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <Motion.div
+            animate={{
+              opacity: twoMode() ? 0.5 : 1.0,
+              scale: twoMode() ? 0.9 : 1.0,
+            }}
+            transition={{ duration: 0.08 }}
             onClick={toggleTwoMode}
-            class={`mino mino-one ${twoMode() ? 'mino-picker-inactive' : 'mino-picker-active'}`}
+            class={`mino mino-one`}
           >
             <div />
-          </div>
-          <div
+          </Motion.div>
+          <Motion.div
+            animate={{
+              opacity: !twoMode() ? 0.5 : 1.0,
+              scale: !twoMode() ? 0.9 : 1.0,
+            }}
+            transition={{ duration: 0.08 }}
             onClick={toggleTwoMode}
-            class={`mino mino-two ${twoMode() ? 'mino-picker-active' : 'mino-picker-inactive'}`}
+            class={`mino mino-two`}
           >
             <div />
             <div />
-          </div>
-        </Show>
-      </div>
+          </Motion.div>
+        </Motion.div>
+      </Show>
     </div>
   );
 }

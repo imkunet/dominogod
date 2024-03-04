@@ -25,6 +25,7 @@
 
   --game-tile-dark: #bebebe;
   --game-tile-light: #cfcfcf;
+  --game-tile-selected: #ebebeb;
 
   --game-board-radius: 1.25vmin;
   --game-board-border: #232323;
@@ -36,6 +37,8 @@
   --game-mino-separator: #e7e7e7;
   --game-mino-width: 0.75vmin;
   --game-mino-pip-size: calc(var(--game-tile-size) / pi);
+
+  --game-block-color: #3d3d3d;
 
   --game-unrevealed: rgba(255, 255, 255, 0.25);
 
