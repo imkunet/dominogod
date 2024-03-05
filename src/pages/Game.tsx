@@ -445,29 +445,31 @@ function Game() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <Motion.div
-                animate={{
-                  opacity: twoMode() ? 0.5 : 1.0,
-                  scale: twoMode() ? 0.9 : 1.0,
-                }}
-                transition={{ duration: 0.08 }}
-                onClick={toggleTwoMode}
-                class={`mino mino-one`}
-              >
-                <div />
-              </Motion.div>
-              <Motion.div
-                animate={{
-                  opacity: !twoMode() ? 0.5 : 1.0,
-                  scale: !twoMode() ? 0.9 : 1.0,
-                }}
-                transition={{ duration: 0.08 }}
-                onClick={toggleTwoMode}
-                class={`mino mino-two`}
-              >
-                <div />
-                <div />
-              </Motion.div>
+              <div onClick={toggleTwoMode}>
+                <Motion.div
+                  animate={{
+                    opacity: twoMode() ? 0.5 : 1.0,
+                    scale: twoMode() ? 0.9 : 1.0,
+                  }}
+                  transition={{ duration: 0.08 }}
+                  class={`mino mino-one`}
+                >
+                  <div />
+                </Motion.div>
+              </div>
+              <div onClick={toggleTwoMode}>
+                <Motion.div
+                  animate={{
+                    opacity: !twoMode() ? 0.5 : 1.0,
+                    scale: !twoMode() ? 0.9 : 1.0,
+                  }}
+                  transition={{ duration: 0.08 }}
+                  class={`mino mino-two`}
+                >
+                  <div />
+                  <div />
+                </Motion.div>
+              </div>
             </Motion.div>
           </Show>
           <Show when={solved()}>

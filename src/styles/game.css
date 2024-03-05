@@ -149,6 +149,14 @@
   gap: 2rem;
 }
 
+.mino-picker > div:nth-child(1) {
+  padding: 0 calc(var(--game-tile-size) / 2);
+}
+
+.mino-picker > div:nth-child(2) {
+  padding: calc(var(--game-tile-size) / 2) 0;
+}
+
 .block {
   display: flex;
   background: var(--game-block-color);
