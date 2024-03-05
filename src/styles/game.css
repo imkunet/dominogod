@@ -106,6 +106,7 @@
   justify-content: center;
   justify-items: center;
   align-items: center;
+  color: var(--color-text);
 }
 
 .numbers-side {

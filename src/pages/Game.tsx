@@ -121,7 +121,13 @@ function Game() {
   };
   const numberStyles = (c: number, g: number) => {
     return {
-      color: solved() ? 'inherit' : c > g ? 'red' : c == g ? 'green' : 'inherit',
+      color: solved()
+        ? 'inherit'
+        : c > g
+          ? 'var(--color-text-red)'
+          : c == g
+            ? 'var(--color-text-green)'
+            : 'inherit',
       transition: 'color 250ms',
     };
   };

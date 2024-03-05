@@ -16,10 +16,13 @@
   --theme: light;
 
   --color-bg: #f4f4f4;
-  --color-text: #2c2c2c;
+  --color-text: black;
   --color-text-secondary: #484848;
   --color-text-disabled: #949494;
   --color-link: #5959e0;
+
+  --color-text-red: #e80c00;
+  --color-text-green: #44ac1e;
 
   --game-tile-size: 8vmin;
   --game-tiles: 7;
