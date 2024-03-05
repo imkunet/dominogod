@@ -128,9 +128,15 @@ function Game() {
   const reset = () => {
     setStartTime(-1);
     setSolved(false);
-    setGridSolution(generateGrid);
+    setGrid(emptyGrid());
     setWizard(true);
     setSolutionShown(false);
+    setTwoMode(false);
+  };
+  const start = () => {
+    setAudioCtx(new AudioContext());
+    setStartTime(currentTime());
+    setGridSolution(generateGrid);
   };
 
   let boardElement: HTMLDivElement;
@@ -148,7 +154,7 @@ function Game() {
   onMount(() => {
     const keyHandler = (event: KeyboardEvent) => {
       if (!inGame()) return;
-      if (event.ctrlKey && event.key == 'r') {
+      if (event.key == 'r') {
         event.preventDefault();
         reset();
       }
@@ -311,10 +317,25 @@ function Game() {
             go play the original by isotropic.us »
           </a>
           <div class="util-bar">
-            <h3>{!inGame() ? '∞' : ((currentTime() - startTime()) / 1000).toFixed(1)}</h3>
+            <h3>
+              {!inGame() ? '∞' : ((currentTime() - startTime()) / 1000).toFixed(1)}{' '}
+              {solutionShown() && (
+                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  🤖
+                </Motion.span>
+              )}
+              {solved() && wizard() && !solutionShown() && (
+                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  🧙‍♂️
+                </Motion.span>
+              )}
+              {solved() && !wizard() && !solutionShown() && (
+                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  ✅
+                </Motion.span>
+              )}
+            </h3>
             <div class="button-bar">
-              {solutionShown() && '🤖'}
-              {wizard() && !solutionShown() && '🧙‍♂️'}
               <button onClick={reset}>
                 <TbDice style={{ color: 'var(--color-text-secondary)' }} />
               </button>
@@ -361,47 +382,68 @@ function Game() {
           </div>
         </div>
         <div class="container">
-          <Show when={inGame()}>
-            <div class="numbers numbers-top">
-              <For each={colSolvedNumbers()}>
-                {(v, i) => (
-                  <Motion.p initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-                    <span style={numberStyles(colNumbers()[i()], v)}>{v}</span>
-                  </Motion.p>
-                )}
-              </For>
-            </div>
-            <div class="numbers numbers-side">
-              <For each={rowSolvedNumbers()}>
-                {(v, i) => (
-                  <Motion.p initial={{ x: 10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-                    <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
-                  </Motion.p>
-                )}
-              </For>
-            </div>
-            <div class="numbers numbers-side">
-              <For each={rowSolvedNumbers()}>
-                {(v, i) => (
-                  <Motion.p initial={{ x: -10, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
-                    <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
-                  </Motion.p>
-                )}
-              </For>
-            </div>
-          </Show>
+          <div class="numbers numbers-top">
+            <For each={colSolvedNumbers()}>
+              {(v, i) => (
+                <Presence>
+                  {inGame() && (
+                    <Motion.p
+                      initial={{ y: 10, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      exit={{ y: 10, opacity: 0 }}
+                    >
+                      <span style={numberStyles(colNumbers()[i()], v)}>{v}</span>
+                    </Motion.p>
+                  )}
+                </Presence>
+              )}
+            </For>
+          </div>
+          <div class="numbers numbers-side">
+            <For each={rowSolvedNumbers()}>
+              {(v, i) => (
+                <Presence>
+                  {inGame() && (
+                    <Motion.p
+                      initial={{ x: 10, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: 10, opacity: 0 }}
+                    >
+                      <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
+                    </Motion.p>
+                  )}
+                </Presence>
+              )}
+            </For>
+          </div>
+          <div class="numbers numbers-side">
+            <For each={rowSolvedNumbers()}>
+              {(v, i) => (
+                <Presence>
+                  {inGame() && (
+                    <Motion.p
+                      initial={{ x: -10, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -10, opacity: 0 }}
+                    >
+                      <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
+                    </Motion.p>
+                  )}
+                </Presence>
+              )}
+            </For>
+          </div>
 
           <div class="board" ref={boardElement!}>
             <Show when={audioCtx() == null || startTime() == -1}>
-              <button
+              <Motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 class="audio-request"
-                onClick={() => {
-                  setAudioCtx(new AudioContext());
-                  setStartTime(currentTime());
-                }}
+                onClick={start}
               >
                 Click to start
-              </button>
+              </Motion.button>
             </Show>
             <Show when={inGame()}>
               <Show when={hoveredXY() != null && !(holding() && createMode())}>
