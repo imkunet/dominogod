@@ -493,7 +493,7 @@ function Game() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
             >
-              <div onClick={toggleTwoMode}>
+              <div onClick={() => setTwoMode(false)}>
                 <Motion.div
                   animate={{
                     opacity: twoMode() ? 0.5 : 1.0,
@@ -505,7 +505,7 @@ function Game() {
                   <div />
                 </Motion.div>
               </div>
-              <div onClick={toggleTwoMode}>
+              <div onClick={() => setTwoMode(true)}>
                 <Motion.div
                   animate={{
                     opacity: !twoMode() ? 0.5 : 1.0,
