@@ -1,8 +1,7 @@
 /* @refresh reload */
+import '@/styles/index.css';
+import Game from './pages/Game';
 import { render } from 'solid-js/web';
-
-import './index.css';
-import Game from './Game';
 
 const root = document.getElementById('root');
 

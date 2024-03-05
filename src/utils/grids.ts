@@ -71,7 +71,7 @@ const countPossibleHorizontalSpots = (grid: Grid): number => {
 
 const generateGrid = (): Grid => {
   const grid = emptyGrid();
-  const passes = 500;
+  const passes = 1000;
   // is vertical?
   let generation = Math.random() > 0.5;
   for (let pass = 0; pass < passes; pass++) {
@@ -108,5 +108,35 @@ const generateGrid = (): Grid => {
   return grid;
 };
 
-export { emptyGrid, cellToValue, printGrid, generateGrid };
+const calcColNumbers = (grid: Grid): number[] => {
+  const numbers = [];
+  for (let x = 0; x < 7; x++) {
+    let current = 0;
+    for (let y = 0; y < 7; y++) current += cellToValue(grid[x][y]);
+    numbers.push(current);
+  }
+  return numbers;
+};
+
+const calcRowNumbers = (grid: Grid): number[] => {
+  const numbers = [];
+  for (let y = 0; y < 7; y++) {
+    let current = 0;
+    for (let x = 0; x < 7; x++) current += cellToValue(grid[x][y]);
+    numbers.push(current);
+  }
+  return numbers;
+};
+
+const isOutOfBounds = (x: number, y: number) => x < 0 || y < 0 || x > 6 || y > 6;
+
+export {
+  emptyGrid,
+  calcColNumbers,
+  calcRowNumbers,
+  cellToValue,
+  printGrid,
+  generateGrid,
+  isOutOfBounds,
+};
 export type { Cell, Grid };

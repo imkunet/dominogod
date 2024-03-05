@@ -19,6 +19,7 @@
   },
   "plugins": ["@typescript-eslint", "prettier", "solid"],
   "rules": {
-    "prettier/prettier": ["warn"]
+    "prettier/prettier": ["warn"],
+    "sort-imports": ["error"]
   }
 }

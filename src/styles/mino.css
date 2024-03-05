@@ -8,7 +8,6 @@
 }
 
 .mino-select {
-  background: var(--game-tile-selected);
   opacity: 0.75;
   border-radius: var(--game-board-radius);
   display: flex;

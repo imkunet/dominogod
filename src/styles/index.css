@@ -18,6 +18,7 @@
   --color-bg: #f4f4f4;
   --color-text: #2c2c2c;
   --color-text-secondary: #484848;
+  --color-text-disabled: #949494;
   --color-link: rgb(106, 106, 255);
 
   --game-tile-size: 8vmin;
@@ -26,6 +27,7 @@
   --game-tile-dark: #bebebe;
   --game-tile-light: #cfcfcf;
   --game-tile-selected: #ebebeb;
+  --game-tile-removed: #979797;
 
   --game-board-radius: 1.25vmin;
   --game-board-border: #232323;
