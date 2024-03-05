@@ -316,7 +316,7 @@ function Game() {
               {solutionShown() && '🤖'}
               {wizard() && !solutionShown() && '🧙‍♂️'}
               <button onClick={reset}>
-                <TbDice />
+                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
               </button>
               <button
                 onClick={() => {
@@ -478,7 +478,7 @@ function Game() {
               exit={{ scale: 0.9, opacity: 0 }}
             >
               <button onClick={reset}>
-                <TbDice />
+                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
               </button>
             </Motion.div>
           </Show>

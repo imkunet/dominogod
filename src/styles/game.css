@@ -61,13 +61,13 @@
   margin-top: 1rem;
   margin-bottom: 1rem;
   font-size: 2rem;
-  color: var(--color-text-secondary) !important;
 }
 
 .button-bar {
   display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.5rem;
 }
 
@@ -82,6 +82,7 @@
   font-size: inherit;
   outline: none;
   border: none;
+  padding: 0;
 }
 
 .container {
@@ -130,6 +131,7 @@
   border: none;
   outline: none;
   background: var(--game-unrevealed);
+  color: var(--color-text);
   cursor: pointer;
   pointer-events: all;
 
