@@ -11,7 +11,7 @@ import {
   isOutOfBounds,
 } from '@/utils/grids';
 import { Motion, Presence } from 'solid-motionone';
-import { TbCheck, TbDice, TbTrash } from 'solid-icons/tb';
+import { TbCpu, TbDice, TbTrash } from 'solid-icons/tb';
 import { playDingSound, playPlaceSound } from '@/utils/audio';
 
 import Mino from '@/components/Mino';
@@ -319,7 +319,7 @@ function Game() {
             <img src="/favicon.svg" />
             <h1>dominogod</h1>
           </div>
-          <a target="_blank" href="https://dominofit.isotropic.us/?ref=dominogod">
+          <a target="_blank" href="https://dominofit.isotropic.us/">
             go play the original by isotropic.us »
           </a>
           <div class="util-bar">
@@ -342,9 +342,6 @@ function Game() {
               )}
             </h3>
             <div class="button-bar">
-              <button onClick={reset}>
-                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
-              </button>
               <button
                 onClick={() => {
                   if (solutionShown() || !inGame()) return;
@@ -354,7 +351,7 @@ function Game() {
                   playPlaceSound(audioCtx(), true);
                 }}
               >
-                <TbCheck
+                <TbCpu
                   style={{
                     color:
                       solutionShown() || !inGame()
@@ -384,6 +381,9 @@ function Game() {
                   }}
                 />
               </button>
+              <button onClick={reset}>
+                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
+              </button>
             </div>
           </div>
         </div>
@@ -391,7 +391,7 @@ function Game() {
           <div class="numbers numbers-top">
             <For each={colSolvedNumbers()}>
               {(v, i) => (
-                <Presence>
+                <Presence exitBeforeEnter>
                   {inGame() && (
                     <Motion.p
                       initial={{ y: 10, opacity: 0 }}
@@ -408,7 +408,7 @@ function Game() {
           <div class="numbers numbers-side">
             <For each={rowSolvedNumbers()}>
               {(v, i) => (
-                <Presence>
+                <Presence exitBeforeEnter>
                   {inGame() && (
                     <Motion.p
                       initial={{ x: 10, opacity: 0 }}
@@ -425,7 +425,7 @@ function Game() {
           <div class="numbers numbers-side">
             <For each={rowSolvedNumbers()}>
               {(v, i) => (
-                <Presence>
+                <Presence exitBeforeEnter>
                   {inGame() && (
                     <Motion.p
                       initial={{ x: -10, opacity: 0 }}
