@@ -7,7 +7,7 @@ interface MinoProps {
   col: number;
 }
 
-function Mino(props: MinoProps) {
+export default function Mino(props: MinoProps) {
   const style = () => {
     return {
       'grid-row-start': props.row,
@@ -34,5 +34,3 @@ function Mino(props: MinoProps) {
     </>
   );
 }
-
-export default Mino;

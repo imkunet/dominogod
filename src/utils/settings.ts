@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const SettingsObject = z.object({
+export const SettingsObject = z.object({
   color_blind_mode: z.boolean().default(false),
   show_solve_button: z.boolean().default(false),
   strict_controls: z.boolean().default(false),
@@ -9,9 +9,9 @@ const SettingsObject = z.object({
   hide_trash: z.boolean().default(false),
 });
 
-type Settings = z.infer<typeof SettingsObject>;
+export type Settings = z.infer<typeof SettingsObject>;
 
-const settingsDescription: Record<keyof Settings, [string, string]> = {
+export const settingsDescription: Record<keyof Settings, [string, string]> = {
   color_blind_mode: [
     'Color Blind Mode',
     'Turns solved numbers blue for those who are red/green colorblind',
@@ -31,6 +31,3 @@ const settingsDescription: Record<keyof Settings, [string, string]> = {
   ],
   hide_trash: ['Hide Trash', 'Hides the trash/clear board button'],
 };
-
-export type { Settings };
-export { settingsDescription, SettingsObject };
