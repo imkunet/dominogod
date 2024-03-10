@@ -170,6 +170,11 @@ function Game() {
     document.addEventListener('keydown', keyHandler);
 
     const handleMove = (x: number, y: number) => {
+      // this is a concession I gotta make for all you touchscreen players out there
+      // which I will now dub "touchies"... >:(
+      // it is slightly problematic since this doesn't create the highlight for those
+      // who aren't on mobile... oh well!
+      if (!inGame()) return;
       const elementRect = boardElement.getBoundingClientRect();
       const elementX = x - elementRect.left;
       const elementY = y - elementRect.top;

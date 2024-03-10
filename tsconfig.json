@@ -22,7 +22,8 @@
     "noFallthroughCasesInSwitch": true,
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@boardgen/*": ["./boardgen/pkg/*"],
     }
   },
   "include": ["src"],

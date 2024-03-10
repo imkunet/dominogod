@@ -255,73 +255,71 @@ const decodeGrid = (encoded: string): Grid | null => {
 
   let expectingBlockIndicator = true;
   let currentRowHasBlocks = false;
+  let expectingBlockNumber = false;
 
   let x = 0;
-  let y = 0;
+  let y = -1;
 
-  out: for (let i = 16; i < raw.length; i++) {
-    let current = raw[i];
-    if (current === undefined) {
-      console.log('no1');
-      return null;
-    }
+  for (let i = 16; i < raw.length; i++) {
+    const current = raw[i];
+    if (current === undefined) return null;
 
-    while (y < 6) {
-      if (x > 6) {
-        expectingBlockIndicator = true;
-        x = 0;
-        ++y;
-
-        if (y > 6) break out;
-      }
-
-      if (outputGrid[x][y] != null) ++x;
-      else break;
-    }
-
-    if (expectingBlockIndicator) {
+    if (expectingBlockIndicator || x >= 7) {
+      x = 0;
+      ++y;
+      if (y > 7) break;
       currentRowHasBlocks = current;
       expectingBlockIndicator = false;
-      console.log('crhb: ' + currentRowHasBlocks);
-      console.log('i: ' + (i - 16));
-      console.log('c: ' + current);
+      expectingBlockNumber = false;
       continue;
     }
 
-    if (currentRowHasBlocks) {
-      if (current) {
-        console.log('pb');
-        outputGrid[x++][y] = 'block';
+    if (currentRowHasBlocks && !expectingBlockNumber) {
+      const isBlock = current;
+      if (isBlock) {
+        while (x < 7) {
+          if (outputGrid[x++][y] == null) break;
+        }
+        if (x >= 8) return null;
+
+        outputGrid[x - 1][y] = 'block';
         continue;
       }
 
-      current = raw[i++];
-      if (current === undefined) {
-        console.log('no2');
-        return null;
-      }
-    }
-
-    if (current) {
-      console.log(`vertatt ${i}`);
-      if (x == 6 || outputGrid[x + 1][y] != null) {
-        console.log(printGrid(outputGrid));
-        console.log('no3');
-        return null;
-      }
-      outputGrid[x++][y] = 'two_complement';
-      outputGrid[x++][y] = 'two';
+      expectingBlockNumber = true;
       continue;
     }
 
-    console.log(`horiatt ${i}`);
-    if (y == 6 || outputGrid[x][y + 1] != null) {
-      console.log('no4');
+    expectingBlockNumber = false;
+
+    if (current) {
+      // 2x1
+      while (x < 6) {
+        if (outputGrid[x++][y] == null && outputGrid[x][y] == null) break;
+      }
+      if (x >= 7) {
+        console.log('nob');
+        return null;
+      }
+
+      outputGrid[x - 1][y] = 'two_complement';
+      outputGrid[x][y] = 'two';
+
+      continue;
+    }
+
+    // 1x2
+    while (x < 7) {
+      if (outputGrid[x++][y] == null) break;
+    }
+    if (x >= 8) {
+      printGrid(outputGrid);
+      console.log('noc');
       return null;
     }
-    outputGrid[x][y] = 'one';
-    outputGrid[x++][y + 1] = 'one_complement';
-    continue;
+
+    outputGrid[x - 1][y] = 'one';
+    outputGrid[x - 1][y + 1] = 'one_complement';
   }
 
   return outputGrid;
