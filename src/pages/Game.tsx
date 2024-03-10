@@ -1,7 +1,6 @@
 import '@/styles/game.css';
 import '@/styles/mino.css';
 
-import { For, Show, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import {
   Grid,
   calcColNumbers,
@@ -10,14 +9,17 @@ import {
   generateGrid,
   isOutOfBounds,
 } from '@/utils/grids';
-import { Motion, Presence } from 'solid-motionone';
-import { TbCpu, TbDice, TbTrash } from 'solid-icons/tb';
+import { SideNumbers, TopNumbers } from '@/components/BoardNumbers';
+import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
 import { playDingSound, playPlaceSound } from '@/utils/audio';
 
-import Mino from '@/components/Mino';
+import Board from '@/components/Board';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
+import Version from '@/components/Version';
 import { clamp } from '@/utils/math';
 
-function Game() {
+export default function Game() {
   // audio engine stuff
   const [audioCtx, setAudioCtx] = createSignal<AudioContext | null>(null);
 
@@ -107,30 +109,7 @@ function Game() {
     if (bottom || top) return [wholeX, wholeY + (bottom ? 0 : -1)];
     return null;
   };
-  const hoverStyles = () => {
-    const pos = hoveredXY();
-    if (pos == null) return {};
 
-    return {
-      'grid-row-start': pos[1] + 1,
-      'grid-row-end': twoMode() ? 'span 1' : 'span 2',
-      'grid-column-start': pos[0] + 1,
-      'grid-column-end': twoMode() ? 'span 2' : 'span 1',
-      background: `var(${holding() && !createMode() ? '--game-tile-removed' : '--game-tile-selected'})`,
-    };
-  };
-  const numberStyles = (c: number, g: number) => {
-    return {
-      color: solved()
-        ? 'inherit'
-        : c > g
-          ? 'var(--color-text-red)'
-          : c == g
-            ? 'var(--color-text-green)'
-            : 'inherit',
-      transition: 'color 250ms',
-    };
-  };
   const reset = () => {
     setStartTime(-1);
     setSolved(false);
@@ -143,6 +122,19 @@ function Game() {
     setAudioCtx(new AudioContext());
     setStartTime(currentTime());
     setGridSolution(generateGrid);
+  };
+  const solve = () => {
+    if (solutionShown() || !inGame()) return;
+    setGrid(emptyGrid());
+    setGrid([...gridSolution().map((v) => v.map((v1) => v1))]);
+    setSolutionShown(true);
+    playPlaceSound(audioCtx(), true);
+  };
+  const trash = () => {
+    if (solved() || !inGame()) return;
+    setGrid(gridSolution().map((v) => v.map((v1) => (v1 == 'block' ? 'block' : null))));
+    setWizard(false);
+    playPlaceSound(audioCtx(), false);
   };
 
   let boardElement: HTMLDivElement;
@@ -170,6 +162,11 @@ function Game() {
     document.addEventListener('keydown', keyHandler);
 
     const handleMove = (x: number, y: number) => {
+      // this is a concession I gotta make for all you touchscreen players out there
+      // which I will now dub "touchies"... >:(
+      // it is slightly problematic since this doesn't create the highlight for those
+      // who aren't on mobile... oh well!
+      if (!inGame()) return;
       const elementRect = boardElement.getBoundingClientRect();
       const elementX = x - elementRect.left;
       const elementY = y - elementRect.top;
@@ -314,231 +311,64 @@ function Game() {
   return (
     <>
       <div class="game">
-        <div class="info-container">
-          <div class="header">
-            <img src="/favicon.svg" />
-            <h1>dominogod</h1>
-          </div>
-          <a target="_blank" href="https://dominofit.isotropic.us/">
-            go play the original by isotropic.us »
-          </a>
-          <div class="util-bar">
-            <h3>
-              {!inGame() ? '∞' : ((currentTime() - startTime()) / 1000).toFixed(1)}{' '}
-              {solutionShown() && (
-                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  🤖
-                </Motion.span>
-              )}
-              {solved() && wizard() && !solutionShown() && (
-                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  🧙‍♂️
-                </Motion.span>
-              )}
-              {solved() && !wizard() && !solutionShown() && (
-                <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  ✅
-                </Motion.span>
-              )}
-            </h3>
-            <div class="button-bar">
-              <button
-                onClick={() => {
-                  if (solutionShown() || !inGame()) return;
-                  setGrid(emptyGrid());
-                  setGrid([...gridSolution().map((v) => v.map((v1) => v1))]);
-                  setSolutionShown(true);
-                  playPlaceSound(audioCtx(), true);
-                }}
-              >
-                <TbCpu
-                  style={{
-                    color:
-                      solutionShown() || !inGame()
-                        ? 'var(--color-text-disabled)'
-                        : 'var(--color-text-secondary)',
-                    transition: 'color 250ms',
-                  }}
-                />
-              </button>
-              <button
-                onClick={() => {
-                  if (solved() || !inGame()) return;
-                  setGrid(
-                    gridSolution().map((v) => v.map((v1) => (v1 == 'block' ? 'block' : null))),
-                  );
-                  setWizard(false);
-                  playPlaceSound(audioCtx(), false);
-                }}
-              >
-                <TbTrash
-                  style={{
-                    color:
-                      solved() || !inGame()
-                        ? 'var(--color-text-disabled)'
-                        : 'var(--color-text-secondary)',
-                    transition: 'color 250ms',
-                  }}
-                />
-              </button>
-              <button onClick={reset}>
-                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
-              </button>
-            </div>
-          </div>
-        </div>
+        <Header
+          inGame={inGame}
+          currentTime={currentTime}
+          startTime={startTime}
+          solutionShown={solutionShown}
+          solved={solved}
+          wizard={wizard}
+          solve={solve}
+          trash={trash}
+          reset={reset}
+        />
         <div class="container">
-          <div class="numbers numbers-top">
-            <For each={colSolvedNumbers()}>
-              {(v, i) => (
-                <Presence exitBeforeEnter>
-                  {inGame() && (
-                    <Motion.p
-                      initial={{ y: 10, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: 10, opacity: 0 }}
-                    >
-                      <span style={numberStyles(colNumbers()[i()], v)}>{v}</span>
-                    </Motion.p>
-                  )}
-                </Presence>
-              )}
-            </For>
-          </div>
-          <div class="numbers numbers-side">
-            <For each={rowSolvedNumbers()}>
-              {(v, i) => (
-                <Presence exitBeforeEnter>
-                  {inGame() && (
-                    <Motion.p
-                      initial={{ x: 10, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: 10, opacity: 0 }}
-                    >
-                      <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
-                    </Motion.p>
-                  )}
-                </Presence>
-              )}
-            </For>
-          </div>
-          <div class="numbers numbers-side">
-            <For each={rowSolvedNumbers()}>
-              {(v, i) => (
-                <Presence exitBeforeEnter>
-                  {inGame() && (
-                    <Motion.p
-                      initial={{ x: -10, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      exit={{ x: -10, opacity: 0 }}
-                    >
-                      <span style={numberStyles(rowNumbers()[i()], v)}>{v}</span>
-                    </Motion.p>
-                  )}
-                </Presence>
-              )}
-            </For>
-          </div>
+          <TopNumbers
+            inGame={inGame}
+            solved={solved}
+            numbers={colNumbers}
+            solvedNumbers={colSolvedNumbers}
+          />
+
+          <SideNumbers
+            inGame={inGame}
+            solved={solved}
+            numbers={rowNumbers}
+            solvedNumbers={rowSolvedNumbers}
+            startSign={1}
+          />
+          <SideNumbers
+            inGame={inGame}
+            solved={solved}
+            numbers={rowNumbers}
+            solvedNumbers={rowSolvedNumbers}
+            startSign={-1}
+          />
 
           <div class="board" ref={boardElement!}>
-            <Show when={audioCtx() == null || startTime() == -1}>
-              <Motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                class="audio-request"
-                onClick={start}
-              >
-                Click to start
-              </Motion.button>
-            </Show>
-            <Show when={inGame()}>
-              <Show when={hoveredXY() != null && !(holding() && createMode())}>
-                <div class="mino-select" style={hoverStyles()} />
-              </Show>
-
-              <For each={grid().flat()}>
-                {(v, i) => {
-                  if (v == 'one' || v == 'two')
-                    return (
-                      <Mino
-                        col={Math.floor(i() / 7) + 1}
-                        row={Math.floor(i() % 7) + 1}
-                        two={v == 'two'}
-                      />
-                    );
-                  if (v == 'block')
-                    return (
-                      <Motion.div
-                        style={{
-                          'grid-column-start': Math.floor(i() / 7) + 1,
-                          'grid-row-start': Math.floor(i() % 7) + 1,
-                        }}
-                        class="block"
-                        initial={{ y: -10, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.15 }}
-                      />
-                    );
-                  return <></>;
-                }}
-              </For>
-            </Show>
+            <Board
+              twoMode={twoMode}
+              holding={holding}
+              createMode={createMode}
+              audioCtx={audioCtx}
+              startTime={startTime}
+              inGame={inGame}
+              grid={grid}
+              hoveredXY={hoveredXY}
+              start={start}
+              boardElement={boardElement!}
+            />
           </div>
         </div>
-        <Presence exitBeforeEnter>
-          <Show when={!solved() && inGame()}>
-            <Motion.div
-              class="info-container mino-picker"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <div onClick={() => setTwoMode(false)}>
-                <Motion.div
-                  animate={{
-                    opacity: twoMode() ? 0.5 : 1.0,
-                    scale: twoMode() ? 0.9 : 1.0,
-                  }}
-                  transition={{ duration: 0.08 }}
-                  class={`mino mino-one`}
-                >
-                  <div />
-                </Motion.div>
-              </div>
-              <div onClick={() => setTwoMode(true)}>
-                <Motion.div
-                  animate={{
-                    opacity: !twoMode() ? 0.5 : 1.0,
-                    scale: !twoMode() ? 0.9 : 1.0,
-                  }}
-                  transition={{ duration: 0.08 }}
-                  class={`mino mino-two`}
-                >
-                  <div />
-                  <div />
-                </Motion.div>
-              </div>
-            </Motion.div>
-          </Show>
-          <Show when={solved()}>
-            <Motion.div
-              class="info-container button-bar button-bar-bottom"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <button onClick={reset}>
-                <TbDice style={{ color: 'var(--color-text-secondary)' }} />
-              </button>
-            </Motion.div>
-          </Show>
-        </Presence>
+        <Footer
+          solved={solved}
+          inGame={inGame}
+          twoMode={twoMode}
+          setTwoMode={setTwoMode}
+          reset={reset}
+        />
       </div>
-      <span class="version">
-        {import.meta.env.PACKAGE_VERSION} {import.meta.env.COMMIT_HASH}
-      </span>
+      <Version />
     </>
   );
 }
-
-export default Game;
