@@ -10,9 +10,9 @@
 }
 
 .settings-container {
-  margin-top: 1rem;
+  margin-top: 2rem;
   margin-right: auto;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   margin-left: auto;
   border-radius: var(--game-board-radius);
   background: var(--color-bg);

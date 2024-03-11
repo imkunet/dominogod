@@ -1,19 +1,27 @@
-import { z } from 'zod';
-import { zu } from 'zod_utilz';
+export type Settings = {
+  muted: boolean;
+  colorBlindMode: boolean;
+  darkMode: boolean;
+  showSolveButton: boolean;
+  strictControls: boolean;
+  hideTime: boolean;
+  hideEndorsement: boolean;
+  hideTrash: boolean;
+};
 
-export const SettingsObject = z.object({
-  colorBlindMode: z.boolean().default(false),
-  showSolveButton: z.boolean().default(false),
-  strictControls: z.boolean().default(false),
-  hideTime: z.boolean().default(false),
-  hideEndorsement: z.boolean().default(false),
-  hideTrash: z.boolean().default(false),
-  darkMode: z.boolean().default(false),
-});
-
-export type Settings = z.infer<typeof SettingsObject>;
+export const defaultSettings: Settings = {
+  muted: false,
+  colorBlindMode: false,
+  showSolveButton: false,
+  strictControls: false,
+  hideTime: false,
+  hideEndorsement: false,
+  hideTrash: false,
+  darkMode: false,
+};
 
 export const settingsDescription: Record<keyof Settings, [string, string]> = {
+  muted: ['Muted', 'Whether to play the neat little sounds or not'],
   colorBlindMode: [
     'Color Blind Mode',
     'Turns solved numbers blue for those who are red/green colorblind',
@@ -39,18 +47,39 @@ export const saveSettings = (settings: Settings) => {
   localStorage.setItem('settings', JSON.stringify(settings));
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const validateSettings = (v: any): Settings => {
+  const validSettings = { ...defaultSettings };
+  let key: keyof typeof validSettings;
+  for (key in validSettings) {
+    const valid = validSettings[key];
+    const current = v[key];
+    if (current === undefined) continue;
+    if (typeof valid === typeof current) {
+      validSettings[key] = current;
+      continue;
+    }
+    console.log(`Invalid setting value for ${key}: '${current}', setting to default '${valid}'`);
+  }
+  return validSettings;
+};
+
 export const loadSettings = (): Settings => {
   const settingsString = localStorage.getItem('settings') || '{}';
-  const parsed = zu.stringToJSON().pipe(SettingsObject).safeParse(settingsString);
 
-  if (!parsed.success) {
-    console.error('Failed to read settings ', parsed.error);
+  try {
+    const parsedJson = JSON.parse(settingsString);
+    const settings = validateSettings(parsedJson);
+    saveSettings(settings);
+    return settings;
+  } catch {
+    const failTime = Date.now();
+    console.log('Failed to parse the settings! Trying again from scratch.');
+    console.log(`The old (broken) settings have been saved as 'settings-${failTime}'.`);
+
+    localStorage.setItem(`settings-${failTime}`, settingsString);
     localStorage.setItem('settings', '{}');
-    // just try again which can cause an infinite loop
-    // but this will never break... right? :)
+
     return loadSettings();
   }
-
-  saveSettings(parsed.data);
-  return parsed.data;
 };

@@ -137,13 +137,13 @@ export default function Game() {
     setGrid(emptyGrid());
     setGrid([...gridSolution().map((v) => v.map((v1) => v1))]);
     setSolutionShown(true);
-    playPlaceSound(audioCtx(), true);
+    if (!settings().muted) playPlaceSound(audioCtx(), true);
   };
   const trash = () => {
     if (solved() || !inGame()) return;
     setGrid(gridSolution().map((v) => v.map((v1) => (v1 == 'block' ? 'block' : null))));
     setWizard(false);
-    playPlaceSound(audioCtx(), false);
+    if (!settings().muted) playPlaceSound(audioCtx(), false);
   };
 
   let boardElement: HTMLDivElement;
@@ -276,7 +276,7 @@ export default function Game() {
       }
 
       setGrid(currentGrid);
-      playPlaceSound(audioCtx(), true);
+      if (!settings().muted) playPlaceSound(audioCtx(), true);
       return;
     }
 
@@ -296,7 +296,7 @@ export default function Game() {
     setWizard(false);
     setGrid(currentGrid);
 
-    playPlaceSound(audioCtx(), false);
+    if (!settings().muted) playPlaceSound(audioCtx(), false);
   });
 
   createEffect(() => {
@@ -317,6 +317,7 @@ export default function Game() {
     if (colNumbers().find((v, i) => v != colSolvedNumbers()[i]) != undefined) return;
     if (rowNumbers().find((v, i) => v != rowSolvedNumbers()[i]) != undefined) return;
     setSolved(true);
+    if (settings().muted) return;
     playDingSound(audioCtx());
   });
 
