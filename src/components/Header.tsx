@@ -55,7 +55,7 @@ export default function Header(props: HeaderProps) {
 
         <div class="button-bar">
           <button onClick={() => props.setSettingsOpen(true)}>
-            <TbSettings />
+            <TbSettings style={{ color: 'var(--color-text-secondary)' }} />
           </button>
           <Show when={props.settings().showSolveButton}>
             <button onClick={() => props.solve()}>
