@@ -8,6 +8,7 @@ export const SettingsObject = z.object({
   hideTime: z.boolean().default(false),
   hideEndorsement: z.boolean().default(false),
   hideTrash: z.boolean().default(false),
+  darkMode: z.boolean().default(false),
 });
 
 export type Settings = z.infer<typeof SettingsObject>;
@@ -31,6 +32,7 @@ export const settingsDescription: Record<keyof Settings, [string, string]> = {
     'Hides the play the original link (please play the original before turning this on)',
   ],
   hideTrash: ['Hide Trash', 'Hides the trash/clear board button'],
+  darkMode: ['Dark Mode', 'The domino night has come once more'],
 };
 
 export const saveSettings = (settings: Settings) => {

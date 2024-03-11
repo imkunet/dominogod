@@ -157,7 +157,7 @@
   position: relative;
   grid-row-end: span 1;
   grid-column-end: span 1;
-  outline: solid var(--game-mino-border-thickness) var(--game-board-border);
+  outline: solid var(--game-mino-border-thickness) var(--game-mino-border);
   outline-offset: calc(var(--game-mino-border-thickness) * -0.5);
   border-radius: var(--game-board-radius);
   background: var(--game-block-color);

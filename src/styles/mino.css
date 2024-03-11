@@ -1,6 +1,6 @@
 .mino {
   position: relative;
-  outline: solid var(--game-mino-border-thickness) var(--game-board-border);
+  outline: solid var(--game-mino-border-thickness) var(--game-mino-border);
   outline-offset: calc(var(--game-mino-border-thickness) * -0.5);
   border-radius: var(--game-board-radius);
   background: white;

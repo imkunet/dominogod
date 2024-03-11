@@ -1,5 +1,5 @@
 import '@/styles/settings.css';
-import { Accessor, For, Setter, Show } from 'solid-js';
+import { Accessor, For, Setter, Show, createEffect, onCleanup, onMount } from 'solid-js';
 import { Motion, Presence } from 'solid-motionone';
 import { Settings, saveSettings, settingsDescription } from '@/utils/settings';
 import { TbSettings, TbX } from 'solid-icons/tb';
@@ -19,6 +19,26 @@ export default function SettingsPanel(props: SettingsProps) {
     saveSettings(settings);
     props.setSettings({ ...settings });
   };
+
+  createEffect(() => {
+    if (props.settings().darkMode) document.body.classList.add('dark');
+    else document.body.classList.remove('dark');
+
+    setTimeout(() => document.body.classList.add('theme-loaded'), 250);
+  });
+
+  onMount(() => {
+    const onPress = (e: KeyboardEvent) => {
+      if (!props.settingsOpen()) return;
+      if (e.key != 'Escape') return;
+      closeSettings();
+    };
+
+    document.addEventListener('keydown', onPress);
+    onCleanup(() => {
+      document.removeEventListener('keydown', onPress);
+    });
+  });
 
   return (
     <>
@@ -53,9 +73,7 @@ export default function SettingsPanel(props: SettingsProps) {
               {/*this has to be busted but like idk the idiomatic way*/}
               <For each={Object.keys(props.settings()) as (keyof Settings)[]}>
                 {(v) => {
-                  const settings = props.settings();
-                  const setting = settings[v];
-                  const settingType = typeof setting;
+                  const settingType = typeof props.settings()[v];
                   return (
                     <div class="setting">
                       <h2>{settingsDescription[v][0]}</h2>
@@ -63,9 +81,10 @@ export default function SettingsPanel(props: SettingsProps) {
                       {settingType === 'boolean' && (
                         <input
                           type="checkbox"
-                          checked={setting}
+                          checked={props.settings()[v]}
                           onChange={() => {
-                            settings[v] = !setting;
+                            const settings = props.settings();
+                            settings[v] = !settings[v];
                             set(settings);
                           }}
                         />
