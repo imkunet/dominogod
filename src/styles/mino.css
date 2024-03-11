@@ -1,37 +1,33 @@
 .mino {
-  background: white;
   position: relative;
-
   outline: solid var(--game-mino-border-thickness) var(--game-board-border);
   outline-offset: calc(var(--game-mino-border-thickness) * -0.5);
   border-radius: var(--game-board-radius);
+  background: white;
 }
 
 .mino-select {
+  display: flex;
   opacity: 0.75;
   border-radius: var(--game-board-radius);
-  display: flex;
 }
 
 .mino > div {
   display: block;
   position: absolute;
-  content: '';
-
-  background: var(--game-board-border);
   border-radius: 100%;
-
+  background: var(--game-board-border);
   width: var(--game-mino-pip-size);
   height: var(--game-mino-pip-size);
+  content: '';
 }
 
 .mino::after {
   display: block;
   position: absolute;
-  content: '';
-
-  background: var(--game-mino-separator);
   border-radius: 1rem;
+  background: var(--game-mino-separator);
+  content: '';
 }
 
 .mino-one {
@@ -45,10 +41,9 @@
 }
 
 .mino-one::after {
-  height: var(--game-mino-width);
-  width: 80%;
-
   translate: 12% calc(var(--game-tile-size) - 50%);
+  width: 80%;
+  height: var(--game-mino-width);
 }
 
 .mino-two {
@@ -67,8 +62,7 @@
 }
 
 .mino-two::after {
-  height: 80%;
-  width: var(--game-mino-width);
-
   translate: calc(var(--game-tile-size) - 50%) 12%;
+  width: var(--game-mino-width);
+  height: 80%;
 }

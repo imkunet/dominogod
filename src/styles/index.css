@@ -1,12 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Delius+Unicase:wght@700&family=Inter:wght@100..900&display=swap');
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-
-  color-scheme: var(--theme);
-  color: var(--color-text);
   background-color: var(--color-bg);
-
+  color: var(--color-text);
+  color-scheme: var(--theme);
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -48,6 +46,10 @@
   --game-unrevealed: rgba(255, 255, 255, 0.25);
 
   --game-numbers-room: 2vmin;
+}
+
+.colorblind {
+  --color-text-green: #7c40ff;
 }
 
 h1,

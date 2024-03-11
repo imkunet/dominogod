@@ -1,33 +1,54 @@
 import { z } from 'zod';
+import { zu } from 'zod_utilz';
 
 export const SettingsObject = z.object({
-  color_blind_mode: z.boolean().default(false),
-  show_solve_button: z.boolean().default(false),
-  strict_controls: z.boolean().default(false),
-  hide_time: z.boolean().default(false),
-  hide_endorsement: z.boolean().default(false),
-  hide_trash: z.boolean().default(false),
+  colorBlindMode: z.boolean().default(false),
+  showSolveButton: z.boolean().default(false),
+  strictControls: z.boolean().default(false),
+  hideTime: z.boolean().default(false),
+  hideEndorsement: z.boolean().default(false),
+  hideTrash: z.boolean().default(false),
 });
 
 export type Settings = z.infer<typeof SettingsObject>;
 
 export const settingsDescription: Record<keyof Settings, [string, string]> = {
-  color_blind_mode: [
+  colorBlindMode: [
     'Color Blind Mode',
     'Turns solved numbers blue for those who are red/green colorblind',
   ],
-  show_solve_button: [
+  showSolveButton: [
     'Solve Button',
     'Shows a CPU automatic-solve button which shows the solution the computer had in mind while making the puzzle',
   ],
-  strict_controls: [
+  strictControls: [
     'Strict Controls',
-    'Makes it so that clicking a domino will choose that domino type instead of cycling between domino types',
+    'Makes it so that clicking/typing a domino will choose that domino type instead of cycling between domino types',
   ],
-  hide_time: ['Hide Time', 'Hides the current solving time while solving'],
-  hide_endorsement: [
+  hideTime: ['Hide Time', 'Hides the current solving time while solving'],
+  hideEndorsement: [
     'Hide Endorsement',
     'Hides the play the original link (please play the original before turning this on)',
   ],
-  hide_trash: ['Hide Trash', 'Hides the trash/clear board button'],
+  hideTrash: ['Hide Trash', 'Hides the trash/clear board button'],
+};
+
+export const saveSettings = (settings: Settings) => {
+  localStorage.setItem('settings', JSON.stringify(settings));
+};
+
+export const loadSettings = (): Settings => {
+  const settingsString = localStorage.getItem('settings') || '{}';
+  const parsed = zu.stringToJSON().pipe(SettingsObject).safeParse(settingsString);
+
+  if (!parsed.success) {
+    console.error('Failed to read settings ', parsed.error);
+    localStorage.setItem('settings', '{}');
+    // just try again which can cause an infinite loop
+    // but this will never break... right? :)
+    return loadSettings();
+  }
+
+  saveSettings(parsed.data);
+  return parsed.data;
 };

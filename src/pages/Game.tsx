@@ -16,8 +16,11 @@ import { playDingSound, playPlaceSound } from '@/utils/audio';
 import Board from '@/components/Board';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import { Portal } from 'solid-js/web';
+import SettingsPanel from '@/components/SettingsPanel';
 import Version from '@/components/Version';
 import { clamp } from '@/utils/math';
+import { loadSettings } from '@/utils/settings';
 
 export default function Game() {
   // audio engine stuff
@@ -45,6 +48,10 @@ export default function Game() {
   const [wizard, setWizard] = createSignal(true);
   const [solutionShown, setSolutionShown] = createSignal(false);
 
+  // settings
+  const [settingsOpen, setSettingsOpen] = createSignal(false);
+  const [settings, setSettings] = createSignal(loadSettings());
+
   const inGame = () => startTime() != -1;
   const isOccupied = (x: number, y: number): boolean => {
     if (isOutOfBounds(x, y)) return true;
@@ -55,6 +62,8 @@ export default function Game() {
     if (twoMode()) return !isOccupied(x + 1, y);
     return !isOccupied(x, y + 1);
   };
+  const setOrToggleTwoMode = (two: boolean) =>
+    settings().strictControls ? setTwoMode(two) : toggleTwoMode();
   const toggleTwoMode = () => setTwoMode(!twoMode());
   const rawCoordinates = (): [number, number, number, number] | null => {
     const mouse = relativeMouseXY();
@@ -152,12 +161,14 @@ export default function Game() {
   onMount(() => {
     const keyHandler = (event: KeyboardEvent) => {
       if (!inGame()) return;
-      if (event.key == 'r') {
+      if (event.key == 'r' || event.key == 'R') {
         event.preventDefault();
         reset();
       }
       if (event.repeat) return;
-      if (event.key == '1' || event.key == '2' || event.key == ' ') toggleTwoMode();
+      if (event.key == '1') return setOrToggleTwoMode(false);
+      if (event.key == '2') return setOrToggleTwoMode(true);
+      if (event.key == ' ') toggleTwoMode();
     };
     document.addEventListener('keydown', keyHandler);
 
@@ -310,7 +321,15 @@ export default function Game() {
 
   return (
     <>
-      <div class="game">
+      <Portal>
+        <SettingsPanel
+          settings={settings}
+          settingsOpen={settingsOpen}
+          setSettings={setSettings}
+          setSettingsOpen={setSettingsOpen}
+        />
+      </Portal>
+      <div class={`game ${settings().colorBlindMode ? 'colorblind' : ''}`}>
         <Header
           inGame={inGame}
           currentTime={currentTime}
@@ -318,6 +337,8 @@ export default function Game() {
           solutionShown={solutionShown}
           solved={solved}
           wizard={wizard}
+          settings={settings}
+          setSettingsOpen={setSettingsOpen}
           solve={solve}
           trash={trash}
           reset={reset}
@@ -364,7 +385,7 @@ export default function Game() {
           solved={solved}
           inGame={inGame}
           twoMode={twoMode}
-          setTwoMode={setTwoMode}
+          setOrToggleTwoMode={setOrToggleTwoMode}
           reset={reset}
         />
       </div>

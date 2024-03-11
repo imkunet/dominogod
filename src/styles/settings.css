@@ -1,0 +1,46 @@
+.settings-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  background: rgb(0, 0, 0, 0.5);
+  width: 100%;
+  min-height: 100%;
+  user-select: none;
+}
+
+.settings-container {
+  margin-top: 1rem;
+  margin-right: auto;
+  margin-bottom: 1rem;
+  margin-left: auto;
+  border-radius: var(--game-board-radius);
+  background: var(--color-bg);
+  padding: 1rem;
+  width: var(--game-board-size);
+  color: var(--color-text);
+}
+
+.settings-bar > h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.settings-bar > h1 > svg {
+  color: var(--color-text-secondary);
+}
+
+.settings-bar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.setting {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.setting > p {
+  color: var(--color-text-secondary);
+}
