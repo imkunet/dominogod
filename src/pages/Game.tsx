@@ -313,6 +313,7 @@ export default function Game() {
 
   createEffect(() => {
     if (!inGame()) return;
+    if (grid().find((v) => v === null) != undefined) return;
     if (colNumbers().find((v, i) => v != colSolvedNumbers()[i]) != undefined) return;
     if (rowNumbers().find((v, i) => v != rowSolvedNumbers()[i]) != undefined) return;
     setSolved(true);
