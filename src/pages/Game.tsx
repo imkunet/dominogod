@@ -166,6 +166,7 @@ export default function Game() {
         reset();
       }
       if (event.repeat) return;
+      if (event.key == 'c') return trash();
       if (event.key == '1') return setOrToggleTwoMode(false);
       if (event.key == '2') return setOrToggleTwoMode(true);
       if (event.key == ' ') toggleTwoMode();
