@@ -91,6 +91,7 @@ export default function Game() {
     if (!(current != 'block' || current != null)) return null;
 
     if (current == 'block') {
+      if (settings().blockPushing) return null;
       // ok now we're in a predicament where we need to shift based on fract
       if (twoMode())
         wholeX = clamp(0, 6, wholeX + ((fractX > 0.5 && wholeX != 6) || wholeX == 0 ? 1 : -2));

@@ -4,6 +4,7 @@ export type Settings = {
   darkMode: boolean;
   showSolveButton: boolean;
   strictControls: boolean;
+  blockPushing: boolean;
   hideTime: boolean;
   hideEndorsement: boolean;
   hideTrash: boolean;
@@ -14,6 +15,7 @@ export const defaultSettings: Settings = {
   colorBlindMode: false,
   showSolveButton: false,
   strictControls: false,
+  blockPushing: false,
   hideTime: false,
   hideEndorsement: false,
   hideTrash: false,
@@ -33,6 +35,10 @@ export const settingsDescription: Record<keyof Settings, [string, string]> = {
   strictControls: [
     'Strict Controls',
     'Makes it so that clicking/typing a domino will choose that domino type instead of cycling between domino types',
+  ],
+  blockPushing: [
+    'Disable Block Pushing',
+    'Prevent the default behavior of pushing dominos away from blocks (dragging over a block will now do nothing)',
   ],
   hideTime: ['Hide Time', 'Hides the current solving time while solving'],
   hideEndorsement: [
