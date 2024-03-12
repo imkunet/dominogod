@@ -1,9 +1,9 @@
 import '@/styles/settings.css';
 import { Accessor, For, Setter, Show, createEffect, onCleanup, onMount } from 'solid-js';
+import { FaBrandsDiscord, FaBrandsGithub } from 'solid-icons/fa';
 import { Motion, Presence } from 'solid-motionone';
 import { Settings, saveSettings, settingsDescription } from '@/utils/settings';
 import { TbSettings, TbX } from 'solid-icons/tb';
-import { FaBrandsDiscord, FaBrandsGithub } from 'solid-icons/fa';
 
 interface SettingsProps {
   settings: Accessor<Settings>;
