@@ -36,6 +36,23 @@
   justify-content: space-between;
 }
 
+.settings-socials-bar {
+  display: flex;
+  width: 100%;
+}
+
+.settings-socials-bar > a {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0.5rem;
+  outline: solid var(--game-mino-border-thickness) var(--game-mino-border);
+  border-radius: var(--game-board-radius);
+  padding: 1rem 0;
+  width: 100%;
+  color: var(--color-text);
+  font-size: 2rem;
+}
+
 .setting {
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;

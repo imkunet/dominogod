@@ -3,6 +3,7 @@ import { Accessor, For, Setter, Show, createEffect, onCleanup, onMount } from 's
 import { Motion, Presence } from 'solid-motionone';
 import { Settings, saveSettings, settingsDescription } from '@/utils/settings';
 import { TbSettings, TbX } from 'solid-icons/tb';
+import { FaBrandsDiscord, FaBrandsGithub } from 'solid-icons/fa';
 
 interface SettingsProps {
   settings: Accessor<Settings>;
@@ -68,6 +69,15 @@ export default function SettingsPanel(props: SettingsProps) {
                 <h1 onClick={closeSettings}>
                   <TbX />
                 </h1>
+              </div>
+
+              <div class="settings-socials-bar">
+                <a target="_blank" href="https://github.com/imkunet/dominogod">
+                  <FaBrandsGithub />
+                </a>
+                <a target="_blank" href="https://discord.gg/72svprtqT8">
+                  <FaBrandsDiscord />
+                </a>
               </div>
 
               {/*this has to be busted but like idk the idiomatic way*/}
