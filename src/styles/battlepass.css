@@ -1,0 +1,30 @@
+.battle-bar {
+  margin: 0.25rem 0;
+  color: var(--color-battle);
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.battle-text {
+  height: 0.75rem;
+}
+
+.battle-progress-back {
+  margin-top: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--color-text-disabled);
+  width: 45%;
+  height: 0.25rem;
+}
+
+.battle-progress-front {
+  border-radius: inherit;
+  background-color: var(--color-battle);
+  height: 100%;
+}
+
+.battle-bottom {
+  margin-top: 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}

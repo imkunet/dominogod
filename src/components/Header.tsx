@@ -1,5 +1,6 @@
 import { Accessor, Setter, Show } from 'solid-js';
 import { TbCpu, TbDice, TbSettings, TbTrash } from 'solid-icons/tb';
+import { BattlePassDisplay } from './BattlePass';
 import { Motion } from 'solid-motionone';
 import { Settings } from '@/utils/settings';
 
@@ -23,8 +24,10 @@ export default function Header(props: HeaderProps) {
   return (
     <div class="info-container">
       <div class="header">
-        <img src="/favicon.svg" />
-        <h1>dominogod</h1>
+        <Show when={props.settings().showBranding}>
+          <img src="/favicon.svg" />
+          <h1>dominogod</h1>
+        </Show>
       </div>
       <Show when={!props.settings().hideEndorsement}>
         <a target="_blank" href="https://dominofit.isotropic.us/">
@@ -88,6 +91,9 @@ export default function Header(props: HeaderProps) {
           </button>
         </div>
       </div>
+      <Show when={!props.settings().hideBattlePass}>
+        <BattlePassDisplay />
+      </Show>
     </div>
   );
 }

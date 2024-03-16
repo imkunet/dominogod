@@ -10,9 +10,10 @@ import {
   isOutOfBounds,
 } from '@/utils/grids';
 import { SideNumbers, TopNumbers } from '@/components/BoardNumbers';
-import { createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import { batch, createEffect, createSignal, onCleanup, onMount, useContext } from 'solid-js';
 import { playDingSound, playPlaceSound } from '@/utils/audio';
 
+import { BattlePassContext } from '@/components/BattlePass';
 import Board from '@/components/Board';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
@@ -51,6 +52,9 @@ export default function Game() {
   // settings
   const [settingsOpen, setSettingsOpen] = createSignal(false);
   const [settings, setSettings] = createSignal(loadSettings());
+
+  // battle pass
+  const battlePassContext = useContext(BattlePassContext);
 
   const inGame = () => startTime() != -1;
   const isOccupied = (x: number, y: number): boolean => {
@@ -121,23 +125,33 @@ export default function Game() {
   };
 
   const reset = () => {
-    setStartTime(-1);
-    setSolved(false);
-    setGrid(emptyGrid());
-    setWizard(true);
-    setSolutionShown(false);
-    setTwoMode(false);
+    batch(() => {
+      if (!solved()) battlePassContext?.resetSessionSolveStreak();
+
+      setStartTime(-1);
+      setSolved(false);
+      setGrid(emptyGrid());
+      setWizard(true);
+      setSolutionShown(false);
+      setTwoMode(false);
+    });
   };
   const start = () => {
     setAudioCtx(new AudioContext());
     setStartTime(currentTime());
     setGridSolution(generateGrid);
+    battlePassContext?.handleCheckIn();
   };
   const solve = () => {
     if (solutionShown() || !inGame()) return;
+    batch(() => {
+      setSolutionShown(true);
+      battlePassContext?.resetSessionSolveStreak();
+    });
+    // really cursed reactivity stuff going on here
+    // this will FORCE an update so that way animations aren't bugged :)
     setGrid(emptyGrid());
     setGrid([...gridSolution().map((v) => v.map((v1) => v1))]);
-    setSolutionShown(true);
     if (!settings().muted) playPlaceSound(audioCtx(), true);
   };
   const trash = () => {
@@ -314,11 +328,24 @@ export default function Game() {
   });
 
   createEffect(() => {
-    if (!inGame()) return;
+    if (!inGame() || solved()) return;
     if (grid().find((v) => v === null) != undefined) return;
     if (colNumbers().find((v, i) => v != colSolvedNumbers()[i]) != undefined) return;
     if (rowNumbers().find((v, i) => v != rowSolvedNumbers()[i]) != undefined) return;
-    setSolved(true);
+    batch(() => {
+      setSolved(true);
+      if (!solutionShown()) {
+        if (wizard()) battlePassContext?.reward('🧙 wizardry', 250);
+        battlePassContext?.reward('✅ puzzle solved', 150);
+        battlePassContext?.incrementSessionSolveStreak();
+
+        const solveTime = currentTime() - startTime();
+        if (solveTime <= 10_000) battlePassContext?.reward('✈️ 10s instant solve', 75);
+        else if (solveTime <= 15_000) battlePassContext?.reward('🏍️ 15s fast solve', 50);
+        else if (solveTime <= 30_000) battlePassContext?.reward('🚂 30s quick solve', 25);
+      }
+    });
+
     if (settings().muted) return;
     playDingSound(audioCtx());
   });
@@ -333,6 +360,7 @@ export default function Game() {
           setSettingsOpen={setSettingsOpen}
         />
       </Portal>
+
       <div class={`game ${settings().colorBlindMode ? 'colorblind' : ''}`}>
         <Header
           inGame={inGame}
