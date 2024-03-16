@@ -33,6 +33,7 @@ export function BattlePassDisplay() {
     batch(() => {
       setExperience(xp);
       setLevel(Math.floor(experience() / LEVEL_XP));
+      setAnimations([`${((experience() % LEVEL_XP) / LEVEL_XP) * 100}%`]);
     });
   });
 
