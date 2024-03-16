@@ -240,13 +240,13 @@ export const BattlePassProvider: ParentComponent = (props) => {
       return;
     }
 
-    reward(`🎉 daily login reward`, 300);
-
     setBattlePass({
       ...battlePass(),
       loginStreak: battlePass().loginStreak + 1,
       dailyLimitUsage: 0,
     });
+
+    reward(`🎉 daily login reward`, 300);
 
     if (Date.now() - lastLoginTime > 1000 * 60 * 60 * 24) {
       // break the streak
