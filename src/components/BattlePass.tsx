@@ -126,7 +126,7 @@ interface BattlePassContextInterface {
 
 const SHOWING_LENGTH = 1250;
 const LEVEL_XP = 1000;
-const DAILY_LIMIT = LEVEL_XP * 7;
+const DAILY_LIMIT = LEVEL_XP * 7 * 3;
 
 interface BattlePass {
   // YYYY-MM-DD of the last login
