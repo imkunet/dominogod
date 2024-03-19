@@ -239,7 +239,15 @@ export default function Game() {
     const touchDownHandler = (event: TouchEvent) => {
       if (!inGame()) return;
       event.preventDefault();
-      handleMove(event.touches[0]?.clientX || -1, event.touches[0]?.clientY || -1);
+      // to be honest i have no idea how this is implemented on browsers :)
+      if (event.touches[0] == undefined) {
+        handleMove(-1, -1);
+      } else {
+        for (const touch of event.touches) {
+          handleMove(touch.clientX, touch.clientY);
+        }
+      }
+
       handleMouseDown();
     };
     boardElement.addEventListener('touchstart', touchDownHandler);
