@@ -37,10 +37,10 @@ export default function Board(props: BoardProps) {
   onMount(() => {
     const keyHandler = (event: KeyboardEvent) => {
       if (props.startTime() != -1) return;
-      event.preventDefault();
-
       if (event.altKey || event.ctrlKey) return;
       if (event.key != ' ' && event.key != '1' && event.key != '2') return;
+
+      event.preventDefault();
       props.start();
     };
 
