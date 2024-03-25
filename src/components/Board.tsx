@@ -1,7 +1,8 @@
-import { Accessor, For, Show } from 'solid-js';
+import { Accessor, For, Show, onCleanup, onMount } from 'solid-js';
 import { Grid } from '@/utils/grids';
 import Mino from './Mino';
 import { Motion } from 'solid-motionone';
+import { Settings } from '@/utils/settings';
 
 interface BoardProps {
   twoMode: Accessor<boolean>;
@@ -11,6 +12,7 @@ interface BoardProps {
   startTime: Accessor<number>;
   inGame: Accessor<boolean>;
   grid: Accessor<Grid>;
+  settings: Accessor<Settings>;
 
   hoveredXY: () => [number, number] | null;
   start: () => void;
@@ -32,6 +34,23 @@ export default function Board(props: BoardProps) {
     };
   };
 
+  onMount(() => {
+    const keyHandler = (event: KeyboardEvent) => {
+      if (props.startTime() != -1) return;
+      event.preventDefault();
+
+      if (event.altKey || event.ctrlKey) return;
+      if (event.key != ' ' && event.key != '1' && event.key != '2') return;
+      props.start();
+    };
+
+    document.addEventListener('keydown', keyHandler);
+
+    onCleanup(() => {
+      document.removeEventListener('keydown', keyHandler);
+    });
+  });
+
   return (
     <>
       <Show when={props.audioCtx() == null || props.startTime() == -1}>
@@ -41,7 +60,7 @@ export default function Board(props: BoardProps) {
           class="audio-request"
           onClick={() => props.start()}
         >
-          Click to start
+          {props.settings().alternateControlStyle ? 'Space to start' : 'Click to start'}
         </Motion.button>
       </Show>
       <Show when={props.inGame()}>

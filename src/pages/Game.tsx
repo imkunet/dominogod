@@ -431,6 +431,7 @@ export default function Game() {
               startTime={startTime}
               inGame={inGame}
               grid={grid}
+              settings={settings}
               hoveredXY={hoveredXY}
               start={start}
               boardElement={boardElement!}
