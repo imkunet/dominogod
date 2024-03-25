@@ -6,6 +6,7 @@ export type Settings = {
   darkMode: boolean;
   showSolveButton: boolean;
   strictControls: boolean;
+  alternateControlStyle: boolean;
   blockPushing: boolean;
   hideTime: boolean;
   hideEndorsement: boolean;
@@ -19,6 +20,7 @@ export const defaultSettings: Settings = {
   colorBlindMode: false,
   showSolveButton: false,
   strictControls: false,
+  alternateControlStyle: false,
   blockPushing: false,
   hideTime: false,
   hideEndorsement: false,
@@ -41,6 +43,10 @@ export const settingsDescription: Record<keyof Settings, [string, string]> = {
   strictControls: [
     'Strict Controls',
     'Makes it so that clicking/typing a domino will choose that domino type instead of cycling between domino types',
+  ],
+  alternateControlStyle: [
+    'Alternate Control Style',
+    'This only works on desktop and it makes it so that clicking does nothing and holding the respective number key down picks that domino and "paints" that domino',
   ],
   blockPushing: [
     'Disable Block Pushing',

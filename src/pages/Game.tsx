@@ -67,7 +67,9 @@ export default function Game() {
     return !isOccupied(x, y + 1);
   };
   const setOrToggleTwoMode = (two: boolean) =>
-    settings().strictControls ? setTwoMode(two) : toggleTwoMode();
+    settings().strictControls || settings().alternateControlStyle
+      ? setTwoMode(two)
+      : toggleTwoMode();
   const toggleTwoMode = () => setTwoMode(!twoMode());
   const rawCoordinates = (): [number, number, number, number] | null => {
     const mouse = relativeMouseXY();
@@ -182,11 +184,22 @@ export default function Game() {
       }
       if (event.repeat) return;
       if (event.key == 'c') return trash();
-      if (event.key == '1') return setOrToggleTwoMode(false);
-      if (event.key == '2') return setOrToggleTwoMode(true);
+      if (event.key == '1') setOrToggleTwoMode(false);
+      if (event.key == '2') setOrToggleTwoMode(true);
+      if (settings().alternateControlStyle && (event.key == '1' || event.key == '2')) {
+        handleMouseDown();
+        return;
+      }
       if (event.key == ' ') toggleTwoMode();
     };
     document.addEventListener('keydown', keyHandler);
+
+    const keyUpHandler = (event: KeyboardEvent) => {
+      if (!settings().alternateControlStyle) return;
+      if (event.key != '1' && event.key != '2') return;
+      handleMouseUp();
+    };
+    document.addEventListener('keyup', keyUpHandler);
 
     const handleMove = (x: number, y: number) => {
       // this is a concession I gotta make for all you touchscreen players out there
@@ -232,12 +245,14 @@ export default function Game() {
 
     const mouseDownHandler = (event: MouseEvent) => {
       if (event.button != 0) return;
+      if (settings().alternateControlStyle) return;
       handleMouseDown();
     };
     boardElement.addEventListener('mousedown', mouseDownHandler);
 
     const touchDownHandler = (event: TouchEvent) => {
       if (!inGame()) return;
+      if (settings().alternateControlStyle) return;
       event.preventDefault();
       // to be honest i have no idea how this is implemented on browsers :)
       if (event.touches[0] == undefined) {
@@ -266,6 +281,7 @@ export default function Game() {
 
     onCleanup(() => {
       document.removeEventListener('keydown', keyHandler);
+      document.removeEventListener('keyup', keyUpHandler);
       boardElement.removeEventListener('mousemove', moveHandler);
       boardElement.removeEventListener('touchmove', touchMoveHandler);
       boardElement.removeEventListener('mouseout', offHandler);
@@ -425,6 +441,7 @@ export default function Game() {
           solved={solved}
           inGame={inGame}
           twoMode={twoMode}
+          settings={settings}
           setOrToggleTwoMode={setOrToggleTwoMode}
           reset={reset}
         />

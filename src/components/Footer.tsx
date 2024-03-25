@@ -1,11 +1,13 @@
 import { Accessor, Show } from 'solid-js';
 import { Motion, Presence } from 'solid-motionone';
+import { Settings } from '@/utils/settings';
 import { TbDice } from 'solid-icons/tb';
 
 interface FooterProps {
   solved: Accessor<boolean>;
   inGame: Accessor<boolean>;
   twoMode: Accessor<boolean>;
+  settings: Accessor<Settings>;
 
   reset: () => void;
   setOrToggleTwoMode: (two: boolean) => void;
@@ -14,7 +16,7 @@ interface FooterProps {
 export default function Footer(props: FooterProps) {
   return (
     <Presence exitBeforeEnter>
-      <Show when={!props.solved() && props.inGame()}>
+      <Show when={!props.solved() && props.inGame() && !props.settings().alternateControlStyle}>
         <Motion.div
           class="info-container mino-picker"
           initial={{ scale: 0.9, opacity: 0 }}
