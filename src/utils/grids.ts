@@ -76,12 +76,44 @@ const generateGrid = (): Grid => {
 
   while (
     calcColNumbers(grid).findIndex((v) => v === 0) != -1 ||
-    calcRowNumbers(grid).findIndex((v) => v === 0) != -1
+    calcRowNumbers(grid).findIndex((v) => v === 0) != -1 ||
+    isRinged(grid)
   ) {
     grid = generateInside();
   }
 
   return grid;
+};
+
+const isRinged = (grid: Grid): boolean => {
+  // there are two ring states:
+  // ┳ ━ ┫      ━ ┫ ┳
+  // ┃ X ┳  or  ┳ X ┃
+  // ━ ┫ ┃      ┃ ━ ┫
+  // and the X cannot be touching a wall
+
+  for (let x = 1; x < 6; x++) {
+    for (let y = 1; y < 6; y++) {
+      if (grid[x][y] != 'block') continue;
+
+      const caseA =
+        grid[x + 1][y] == 'one' &&
+        grid[x - 1][y] == 'one_complement' &&
+        grid[x][y - 1] == 'two_complement' &&
+        grid[x][y + 1] == 'two';
+      const caseB =
+        grid[x + 1][y] == 'one_complement' &&
+        grid[x - 1][y] == 'one' &&
+        grid[x][y - 1] == 'two' &&
+        grid[x][y + 1] == 'two_complement';
+
+      if (caseA) console.log('a');
+      if (caseB) console.log('b');
+      if (caseA || caseB) return true;
+    }
+  }
+
+  return false;
 };
 
 const generateInside = (): Grid => {
@@ -176,7 +208,8 @@ const encodeGrid = (grid: Grid): string => {
       }
     }
     tileStates.push(found);
-    for (let x = 0; x < 7; x++) {
+
+    for (let x = 6; x > 0; x--) {
       const tile = grid[x][y];
 
       if (tile == 'block') {
@@ -190,7 +223,7 @@ const encodeGrid = (grid: Grid): string => {
         continue;
       }
 
-      if (tile == 'two_complement') {
+      if (tile == 'two') {
         if (found) tileStates.push(false);
         tileStates.push(true);
       }
