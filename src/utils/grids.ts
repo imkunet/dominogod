@@ -107,8 +107,6 @@ const isRinged = (grid: Grid): boolean => {
         grid[x][y - 1] == 'two' &&
         grid[x][y + 1] == 'two_complement';
 
-      if (caseA) console.log('a');
-      if (caseB) console.log('b');
       if (caseA || caseB) return true;
     }
   }
