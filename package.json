@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "bun run wasm && tsc && vite build",
-    "wasm": "wasm-pack build boardgen --target web --release",
+    "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
