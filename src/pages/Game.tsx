@@ -28,8 +28,9 @@ export default function Game() {
   const [audioCtx, setAudioCtx] = createSignal<AudioContext | null>(null);
 
   // game grid stuff
-  const [gridSolution, setGridSolution] = createSignal<Grid>(generateGrid());
-  const [grid, setGrid] = createSignal<Grid>(emptyGrid());
+  const [gridSize, setGridSize] = createSignal(parseInt(localStorage.getItem('gridSize') || '7'));
+  const [gridSolution, setGridSolution] = createSignal<Grid>(generateGrid(gridSize() as 6 | 7 | 8));
+  const [grid, setGrid] = createSignal<Grid>(emptyGrid(gridSize()));
 
   const [colNumbers, setColNumbers] = createSignal<number[]>([]);
   const [colSolvedNumbers, setColSolvedNumbers] = createSignal<number[]>([]);
@@ -58,7 +59,7 @@ export default function Game() {
 
   const inGame = () => startTime() != -1;
   const isOccupied = (x: number, y: number): boolean => {
-    if (isOutOfBounds(x, y)) return true;
+    if (isOutOfBounds(gridSize(), x, y)) return true;
     return grid()[x][y] != null;
   };
   const checkFit = (x: number, y: number): boolean => {
@@ -76,10 +77,10 @@ export default function Game() {
     if (mouse == null) return null;
     if (mouse[0] < 0 || mouse[1] < 0) return null;
 
-    const absX = (mouse[0] / boardElement.clientWidth) * 7;
-    const absY = (mouse[1] / boardElement.clientHeight) * 7;
+    const absX = (mouse[0] / boardElement.clientWidth) * gridSize();
+    const absY = (mouse[1] / boardElement.clientHeight) * gridSize();
 
-    if (absX > 7 || absY > 7) return null;
+    if (absX > gridSize() || absY > gridSize()) return null;
 
     return [absX, absY, Math.floor(absX), Math.floor(absY)];
   };
@@ -97,11 +98,21 @@ export default function Game() {
     if (!(current != 'block' || current != null)) return null;
 
     if (current == 'block') {
+      const gridSizeMinusOne = gridSize() - 1;
       if (settings().blockPushing) return null;
       // ok now we're in a predicament where we need to shift based on fract
       if (twoMode())
-        wholeX = clamp(0, 6, wholeX + ((fractX > 0.5 && wholeX != 6) || wholeX == 0 ? 1 : -2));
-      else wholeY = clamp(0, 6, wholeY + ((fractY > 0.5 && wholeY != 6) || wholeY == 0 ? 1 : -2));
+        wholeX = clamp(
+          0,
+          gridSizeMinusOne,
+          wholeX + ((fractX > 0.5 && wholeX != gridSizeMinusOne) || wholeX == 0 ? 1 : -2),
+        );
+      else
+        wholeY = clamp(
+          0,
+          gridSizeMinusOne,
+          wholeY + ((fractY > 0.5 && wholeY != gridSizeMinusOne) || wholeY == 0 ? 1 : -2),
+        );
 
       if (!checkFit(wholeX, wholeY)) return null;
       return [wholeX, wholeY];
@@ -132,7 +143,7 @@ export default function Game() {
 
       setStartTime(-1);
       setSolved(false);
-      setGrid(emptyGrid());
+      setGrid(emptyGrid(gridSize()));
       setWizard(true);
       setSolutionShown(false);
       setTwoMode(false);
@@ -141,7 +152,7 @@ export default function Game() {
   const start = () => {
     setAudioCtx(new AudioContext());
     setStartTime(currentTime());
-    setGridSolution(generateGrid);
+    setGridSolution(() => generateGrid(gridSize() as 6 | 7 | 8));
     battlePassContext?.handleCheckIn();
   };
   const solve = () => {
@@ -152,18 +163,17 @@ export default function Game() {
     });
     // really cursed reactivity stuff going on here
     // this will FORCE an update so that way animations aren't bugged :)
-    setGrid(emptyGrid());
+    setGrid(emptyGrid(gridSize()));
     setGrid([...gridSolution().map((v) => v.map((v1) => v1))]);
     if (!settings().muted) playPlaceSound(audioCtx(), true);
   };
   const trash = () => {
     if (solved() || !inGame()) return;
     setGrid(gridSolution().map((v) => v.map((v1) => (v1 == 'block' ? 'block' : null))));
-    setWizard(false);
     if (!settings().muted) playPlaceSound(audioCtx(), false);
   };
 
-  let boardElement: HTMLDivElement;
+  let boardElement!: HTMLDivElement;
 
   onMount(() => {
     const loop = (t: number) => {
@@ -178,7 +188,7 @@ export default function Game() {
   onMount(() => {
     const keyHandler = (event: KeyboardEvent) => {
       if (!inGame()) return;
-      if (event.key == 'r' || event.key == 'R') {
+      if (event.key == 'r' || event.key == 'R' || event.key == 'd' || event.key == 'D') {
         event.preventDefault();
         reset();
       }
@@ -306,6 +316,7 @@ export default function Game() {
       if (hovered == null) return;
 
       const currentGrid = [...grid()];
+      const currentSolution = [...gridSolution()];
 
       if (twoMode()) {
         currentGrid[hovered[0]][hovered[1]] = 'two_complement';
@@ -313,6 +324,10 @@ export default function Game() {
       } else {
         currentGrid[hovered[0]][hovered[1]] = 'one';
         currentGrid[hovered[0]][hovered[1] + 1] = 'one_complement';
+      }
+
+      if (currentGrid[hovered[0]][hovered[1]] != currentSolution[hovered[0]][hovered[1]]) {
+        setWizard(false);
       }
 
       setGrid(currentGrid);
@@ -333,7 +348,6 @@ export default function Game() {
     if (tile == 'one_complement') currentGrid[coordinates[2]][coordinates[3] - 1] = null;
     if (tile == 'two') currentGrid[coordinates[2] - 1][coordinates[3]] = null;
     if (tile == 'two_complement') currentGrid[coordinates[2] + 1][coordinates[3]] = null;
-    setWizard(false);
     setGrid(currentGrid);
 
     if (!settings().muted) playPlaceSound(audioCtx(), false);
@@ -374,6 +388,13 @@ export default function Game() {
     playDingSound(audioCtx());
   });
 
+  createEffect(() => {
+    const size = gridSize();
+    console.log(size);
+    document.body.style.setProperty('--game-tiles', size.toString());
+    localStorage.setItem('gridSize', size.toString());
+  });
+
   return (
     <>
       <Portal>
@@ -398,6 +419,8 @@ export default function Game() {
           solve={solve}
           trash={trash}
           reset={reset}
+          gridSize={gridSize}
+          setGridSize={setGridSize}
         />
         <div class="container">
           <TopNumbers
@@ -435,6 +458,7 @@ export default function Game() {
               hoveredXY={hoveredXY}
               start={start}
               boardElement={boardElement!}
+              gridSize={gridSize}
             />
           </div>
         </div>

@@ -12,8 +12,10 @@ interface HeaderProps {
   solved: Accessor<boolean>;
   wizard: Accessor<boolean>;
   settings: Accessor<Settings>;
+  gridSize: Accessor<number>;
 
   setSettingsOpen: Setter<boolean>;
+  setGridSize: Setter<number>;
 
   solve: () => void;
   trash: () => void;
@@ -21,6 +23,15 @@ interface HeaderProps {
 }
 
 export default function Header(props: HeaderProps) {
+  const displayTime = () => {
+    let displayTime = ((props.currentTime() - props.startTime()) / 1000).toFixed(1);
+    if (!props.inGame() || (props.settings().hideTime && !props.solved()) || props.solutionShown())
+      displayTime = '∞';
+    return displayTime;
+  };
+
+  const isSelected = (n: number): boolean => props.gridSize() === n;
+
   return (
     <div class="info-container">
       <div class="header">
@@ -36,9 +47,7 @@ export default function Header(props: HeaderProps) {
       </Show>
       <div class="util-bar">
         <h3>
-          {!props.inGame() || (props.settings().hideTime && !props.solved())
-            ? '∞'
-            : ((props.currentTime() - props.startTime()) / 1000).toFixed(1)}{' '}
+          {displayTime()}{' '}
           {props.solutionShown() && (
             <Motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               🤖
@@ -57,6 +66,22 @@ export default function Header(props: HeaderProps) {
         </h3>
 
         <div class="button-bar">
+          <select
+            onChange={(e) => {
+              props.setGridSize(parseInt(e.target.value));
+              props.reset();
+            }}
+          >
+            <option value="6" selected={isSelected(6)}>
+              6x6
+            </option>
+            <option value="7" selected={isSelected(7)}>
+              7x7
+            </option>
+            <option value="8" selected={isSelected(8)}>
+              8x8
+            </option>
+          </select>
           <button onClick={() => props.setSettingsOpen(true)}>
             <TbSettings style={{ color: 'var(--color-text-secondary)' }} />
           </button>

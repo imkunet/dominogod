@@ -1,6 +1,6 @@
 import { Accessor, For, Show, onCleanup, onMount } from 'solid-js';
 import { Grid } from '@/utils/grids';
-import Mino from './Mino';
+import Mino from '@/components/Mino';
 import { Motion } from 'solid-motionone';
 import { Settings } from '@/utils/settings';
 
@@ -13,6 +13,7 @@ interface BoardProps {
   inGame: Accessor<boolean>;
   grid: Accessor<Grid>;
   settings: Accessor<Settings>;
+  gridSize: Accessor<number>;
 
   hoveredXY: () => [number, number] | null;
   start: () => void;
@@ -38,7 +39,14 @@ export default function Board(props: BoardProps) {
     const keyHandler = (event: KeyboardEvent) => {
       if (props.startTime() != -1) return;
       if (event.altKey || event.ctrlKey) return;
-      if (event.key != ' ' && event.key != '1' && event.key != '2') return;
+      if (
+        event.key != ' ' &&
+        event.key != '1' &&
+        event.key != '2' &&
+        event.key != 'w' &&
+        event.key != 'W'
+      )
+        return;
 
       event.preventDefault();
       props.start();
@@ -73,8 +81,8 @@ export default function Board(props: BoardProps) {
             if (v == 'one' || v == 'two')
               return (
                 <Mino
-                  col={Math.floor(i() / 7) + 1}
-                  row={Math.floor(i() % 7) + 1}
+                  col={Math.floor(i() / props.gridSize()) + 1}
+                  row={Math.floor(i() % props.gridSize()) + 1}
                   two={v == 'two'}
                 />
               );
@@ -82,8 +90,8 @@ export default function Board(props: BoardProps) {
               return (
                 <Motion.div
                   style={{
-                    'grid-column-start': Math.floor(i() / 7) + 1,
-                    'grid-row-start': Math.floor(i() % 7) + 1,
+                    'grid-column-start': Math.floor(i() / props.gridSize()) + 1,
+                    'grid-row-start': Math.floor(i() % props.gridSize()) + 1,
                   }}
                   class="block"
                   initial={{ y: -10, opacity: 0 }}

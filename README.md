@@ -12,9 +12,8 @@
 </h1>
 
 ### Technical Notes
-- Development only works on Linux and macOS atm (WSL counts, too!)
 - Using the Bun package manager
-- Requires rust + cargo installed
+- Requires Zig 0.14.0+ to be installed
 - Use `bun run boardgen` to compile the WASM stuff (everything *just works*)
 - Using SolidJS!
 
