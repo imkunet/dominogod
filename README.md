@@ -14,7 +14,7 @@
 ### Technical Notes
 - Using the Bun package manager
 - Requires Zig 0.14.0+ to be installed
-- Use `bun run boardgen` to compile the WASM stuff (everything *just works*)
+- Use `bun run wasm` to compile the WASM stuff (everything *just works*)
 - Using SolidJS!
 
 ### Acknowledgement
