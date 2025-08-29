@@ -81,6 +81,9 @@ export default function Header(props: HeaderProps) {
             <option value="8" selected={isSelected(8)}>
               8x8
             </option>
+            <option value="10" selected={isSelected(10)}>
+              10x10
+            </option>
           </select>
           <button onClick={() => props.setSettingsOpen(true)}>
             <TbSettings style={{ color: 'var(--color-text-secondary)' }} />

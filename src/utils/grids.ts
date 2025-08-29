@@ -1,6 +1,6 @@
 const { instance } = await WebAssembly.instantiateStreaming(fetch('domino.wasm'));
 
-const wasmGenerate = (n: 6 | 7 | 8): number[] => {
+const wasmGenerate = (n: number): number[] => {
   const board = new Uint8Array((instance.exports.memory as WebAssembly.Memory).buffer, 0, n * n);
   const seed = BigInt(Math.floor(Math.random() * 2 ** 52));
   const generateFn = instance.exports['generate' + n] as (seed: BigInt, board: Uint8Array) => void;
@@ -55,7 +55,7 @@ const cellToValue = (cell: Cell) => {
 //   }
 // };
 
-const generateGrid = (n: 6 | 7 | 8 = 7): Grid => {
+const generateGrid = (n: number = 7): Grid => {
   while (true) {
     const generated = wasmGenerate(n);
     const grid = emptyGrid(n);
@@ -63,13 +63,13 @@ const generateGrid = (n: 6 | 7 | 8 = 7): Grid => {
     generated.forEach((v, i) => {
       const row = Math.floor(i / n);
       const col = i % n;
-      if (v === 1) {
+      if (v === 0b010) {
         grid[col][row] = 'one';
         grid[col][row + 1] = 'one_complement';
       }
-      if (v === 2) {
-        grid[col][row] = 'two_complement';
-        grid[col + 1][row] = 'two';
+      if (v === 0b110) {
+        grid[col][row] = 'two';
+        grid[col - 1][row] = 'two_complement';
       }
     });
 

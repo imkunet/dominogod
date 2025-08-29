@@ -29,7 +29,7 @@ export default function Game() {
 
   // game grid stuff
   const [gridSize, setGridSize] = createSignal(parseInt(localStorage.getItem('gridSize') || '7'));
-  const [gridSolution, setGridSolution] = createSignal<Grid>(generateGrid(gridSize() as 6 | 7 | 8));
+  const [gridSolution, setGridSolution] = createSignal<Grid>(generateGrid(gridSize()));
   const [grid, setGrid] = createSignal<Grid>(emptyGrid(gridSize()));
 
   const [colNumbers, setColNumbers] = createSignal<number[]>([]);
@@ -151,8 +151,8 @@ export default function Game() {
   };
   const start = () => {
     setAudioCtx(new AudioContext());
+    setGridSolution(() => generateGrid(gridSize()));
     setStartTime(currentTime());
-    setGridSolution(() => generateGrid(gridSize() as 6 | 7 | 8));
     battlePassContext?.handleCheckIn();
   };
   const solve = () => {
@@ -390,7 +390,7 @@ export default function Game() {
 
   createEffect(() => {
     const size = gridSize();
-    console.log(size);
+    // console.log(size);
     document.body.style.setProperty('--game-tiles', size.toString());
     localStorage.setItem('gridSize', size.toString());
   });
