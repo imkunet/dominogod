@@ -1,7 +1,8 @@
 const std = @import("std");
 const dominoboard = @import("root.zig");
 
-const DominoBoard = dominoboard.DominoBoard(8);
+const DominoBoard = dominoboard.DominoBoard(32);
+const runs = 10;
 
 fn print_ms(ns: i128) void {
     const f_ns: f64 = @floatFromInt(ns);
@@ -31,7 +32,7 @@ pub fn main() !void {
     var min: i128 = std.math.maxInt(i128);
     var sum: i128 = 0;
 
-    for (0..10000) |_| {
+    for (0..runs) |_| {
         const t_start = std.time.nanoTimestamp();
         _ = DominoBoard.generate(std.crypto.random.int(u64));
         const t_duration = std.time.nanoTimestamp() - t_start;
@@ -41,7 +42,7 @@ pub fn main() !void {
     }
 
     std.debug.print("avg. ", .{});
-    print_ms(@divTrunc(sum, 10000));
+    print_ms(@divTrunc(sum, runs));
     std.debug.print("max ", .{});
     print_ms(max);
     std.debug.print("min ", .{});

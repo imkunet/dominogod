@@ -1,6 +1,7 @@
 const std = @import("std");
 const zero = std.mem.zeroes;
-const prng = std.Random.DefaultPrng;
+const Random = std.Random;
+const prng = Random.DefaultPrng;
 
 pub const CellState = u3;
 
@@ -122,47 +123,41 @@ pub fn DominoBoard(comptime N: usize) type {
         pub fn generate(seed: u64) @This() {
             var rng = prng.init(seed);
             var random = rng.random();
-            const maxBlocks = (N * 4) / 3;
-            const maxFails = N2 * N2;
+            var maxBlocks: usize = 1;
             var totalFails: usize = 0;
 
             retry: while (true) {
-                var fails: usize = 0;
                 var board = init();
 
                 var placements: usize = 0;
                 var zero_indexes: [N2]usize = undefined;
                 for (0..N2) |i| zero_indexes[i] = i;
                 var zero_indexes_partition: usize = 0;
+                var tried = zero([N2]u2);
 
-                while (N2 - 2 * placements > maxBlocks) {
-                    if (zero_indexes_partition >= N2) break;
-                    if (fails >= maxFails) {
+                while (N2 - placements > maxBlocks) {
+                    if (zero_indexes_partition >= N2) {
                         totalFails += 1;
-                        // std.debug.print("retry of doom! {d}\n", .{totalFails});
+                        maxBlocks += 1;
+                        // std.debug.print("retry of DOOM! {d}\n", .{totalFails});
                         continue :retry;
                     }
 
                     random.shuffle(usize, zero_indexes[zero_indexes_partition..]);
                     const target_index = zero_indexes[zero_indexes_partition];
-                    const target_type = if (random.boolean()) cs_t else cs_tt;
+                    const tried_state = tried[target_index];
+                    const target_type =
+                        if (tried_state == 0b00) (if (random.boolean()) cs_t else cs_tt) else if (tried_state == 0b01) cs_tt else cs_t;
+                    tried[target_index] |= if (target_type == cs_t) 0b01 else 0b10;
+
+                    if (tried[target_index] == 0b11) zero_indexes_partition += 1;
 
                     const row, const col = coords(target_index);
                     if (!board.place(row, col, target_type)) {
-                        fails += 1;
-                        if (random.float(f32) > 0.997)
-                            zero_indexes_partition += 1;
                         continue;
                     }
 
-                    placements += 1;
-                    zero_indexes_partition += 1;
-                }
-
-                if (N2 - 2 * placements > maxBlocks * 3) {
-                    totalFails += 1;
-                    // std.debug.print("retry of DOOM! {d}\n", .{totalFails});
-                    continue :retry;
+                    placements += 2;
                 }
 
                 return board;
