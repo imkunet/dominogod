@@ -59,7 +59,7 @@ pub fn DominoBoard(comptime N: usize) type {
 
                 const r = i / N;
                 const c = i % N;
-                // if (row == r or col == c) continue;
+                if (row == r or col == c) continue;
 
                 // grab other corners, assuming they exist
                 const sameRow = self.getBounded(row, c);
@@ -68,11 +68,11 @@ pub fn DominoBoard(comptime N: usize) type {
                 if (sameCol == cs_undefined) continue;
 
                 // and the corners must be the opposite orientation from the placement
-                // if (orientation(sameRow) == orientation(state)) continue;
+                if (orientation(sameRow) == orientation(state)) continue;
                 // other corners must be same orientation
-                // if (orientation(sameRow) != orientation(sameCol)) continue;
+                if (orientation(sameRow) != orientation(sameCol)) continue;
                 // the other corners must have opposing signs
-                // if (sameRow == sameCol) continue;
+                if (sameRow == sameCol) continue;
 
                 // std.debug.print("discarding ring {d} - {d} / {d}\n", .{ state, sameRow, sameCol });
                 return false;

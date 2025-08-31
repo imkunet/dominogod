@@ -1,7 +1,7 @@
 const std = @import("std");
 const dominoboard = @import("root.zig");
 
-const DominoBoard = dominoboard.DominoBoard(64);
+const DominoBoard = dominoboard.DominoBoard(32);
 const runs = 1;
 
 fn print_ms(ns: i128) void {
