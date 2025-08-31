@@ -4,7 +4,7 @@ const std = @import("std");
 const dominoboard = @import("root.zig");
 
 const board = dominoboard.DominoBoard(8);
-const thread_count = 8;
+const thread_count = 10;
 var iterations = std.atomic.Value(usize).init(0);
 var t_start: i128 = undefined;
 var killswitch: bool = false;
@@ -59,7 +59,7 @@ pub fn main() !void {
 
     std.posix.sigaction(std.posix.SIG.INT, &action, null);
 
-    for (0..8) |_| {
+    for (0..thread_count) |_| {
         (try std.Thread.spawn(.{}, worker, .{})).detach();
     }
 
