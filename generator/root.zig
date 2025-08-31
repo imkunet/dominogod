@@ -5,21 +5,21 @@ const prng = Random.DefaultPrng;
 
 pub const CellState = u3;
 
-const cs_undefined: CellState = 0b000; // 000 0   0
-const cs_t: CellState = 0b010; // ........010 t   2
-const cs_t0: CellState = 0b001; // .......001 t'  1
-const cs_tt: CellState = 0b110; // .......110 tt  6
-const cs_tt0: CellState = 0b101; // ......101 tt' 5
+pub const cs_undefined: CellState = 0b000; // 000 0   0
+pub const cs_t: CellState = 0b010; // ........010 t   2
+pub const cs_t0: CellState = 0b001; // .......001 t'  1
+pub const cs_tt: CellState = 0b110; // .......110 tt  6
+pub const cs_tt0: CellState = 0b101; // ......101 tt' 5
 
 const cs_orientation_t: CellState = 0b000;
 const cs_orientation_tt: CellState = 0b100;
 
 inline fn negate(state: CellState) CellState {
-    return orientation(state) | ~(0b011 & state);
+    return state ^ 0b011;
 }
 
 inline fn flip(state: CellState) CellState {
-    return ~orientation(state) | (0b011 & state);
+    return state ^ 0b100;
 }
 
 inline fn orientation(state: CellState) CellState {
@@ -48,7 +48,7 @@ pub fn DominoBoard(comptime N: usize) type {
             return .{ i / N, i % N };
         }
 
-        inline fn getBounded(self: *@This(), row: usize, col: usize) CellState {
+        pub inline fn getBounded(self: *@This(), row: usize, col: usize) CellState {
             return self.board[N * row + col];
         }
 
@@ -59,7 +59,7 @@ pub fn DominoBoard(comptime N: usize) type {
 
                 const r = i / N;
                 const c = i % N;
-                if (row == r or col == c) continue;
+                // if (row == r or col == c) continue;
 
                 // grab other corners, assuming they exist
                 const sameRow = self.getBounded(row, c);
@@ -67,16 +67,18 @@ pub fn DominoBoard(comptime N: usize) type {
                 const sameCol = self.getBounded(r, col);
                 if (sameCol == cs_undefined) continue;
 
-                // other corners must be same orientation
-                if (orientation(sameRow) != orientation(sameCol)) continue;
                 // and the corners must be the opposite orientation from the placement
-                if (orientation(sameRow) == orientation(state)) continue;
+                // if (orientation(sameRow) == orientation(state)) continue;
+                // other corners must be same orientation
+                // if (orientation(sameRow) != orientation(sameCol)) continue;
                 // the other corners must have opposing signs
-                if (sameRow == sameCol) continue;
+                // if (sameRow == sameCol) continue;
 
                 // std.debug.print("discarding ring {d} - {d} / {d}\n", .{ state, sameRow, sameCol });
                 return false;
             }
+
+            // std.debug.print("okay {d} {d}\n", .{ row, col });
 
             return true;
         }
@@ -86,19 +88,17 @@ pub fn DominoBoard(comptime N: usize) type {
             if (self.getBounded(row, col) != cs_undefined) return false;
             if (!self.check_place(row, col, state)) return false;
             const ori = orientation(state);
-            switch (ori) {
-                cs_orientation_t => {
-                    if (row == N - 1 or self.getBounded(row + 1, col) != cs_undefined) return false;
-                    if (!self.check_place(row + 1, col, cs_t0)) return false;
-                    self.board[idx(row + 1, col)] = cs_t0;
-                },
-                cs_orientation_tt => {
-                    if (col == 0 or self.getBounded(row, col - 1) != cs_undefined) return false;
-                    if (!self.check_place(row, col - 1, cs_tt0)) return false;
-                    self.board[idx(row, col - 1)] = cs_tt0;
-                },
-                else => return false,
+            if (ori == cs_orientation_t) {
+                if (row == N - 1 or self.getBounded(row + 1, col) != cs_undefined) return false;
+                if (!self.check_place(row + 1, col, cs_t0)) return false;
+                self.board[idx(row + 1, col)] = cs_t0;
             }
+            if (ori == cs_orientation_tt) {
+                if (col == 0 or self.getBounded(row, col - 1) != cs_undefined) return false;
+                if (!self.check_place(row, col - 1, cs_tt0)) return false;
+                self.board[idx(row, col - 1)] = cs_tt0;
+            }
+
             self.board[idx(row, col)] = state;
 
             return true;
@@ -164,4 +164,35 @@ pub fn DominoBoard(comptime N: usize) type {
             }
         }
     };
+}
+
+const testing = std.testing;
+const expect = testing.expect;
+const expectEqual = testing.expectEqual;
+
+test "negations works" {
+    std.debug.print("{b} -> {b} {b} -> {b}\n", .{ cs_t, negate(cs_t), cs_t0, negate(cs_t0) });
+    try expectEqual(negate(cs_t), cs_t0);
+    try expectEqual(negate(cs_tt), cs_tt0);
+
+    try expectEqual(negate(cs_t0), cs_t);
+    try expectEqual(negate(cs_tt0), cs_tt);
+}
+
+test "flips works" {
+    try expectEqual(flip(cs_t), cs_tt);
+    try expectEqual(flip(cs_tt), cs_t);
+
+    try expectEqual(flip(cs_t0), cs_tt0);
+    try expectEqual(flip(cs_tt0), cs_t0);
+}
+
+test "orientation comparison works" {
+    try expectEqual(orientation(cs_t), orientation(cs_t0));
+    try expectEqual(orientation(cs_tt), orientation(cs_tt0));
+
+    try expect(orientation(cs_t) != orientation(cs_tt));
+    try expect(orientation(cs_tt) != orientation(cs_t));
+    try expect(orientation(cs_t0) != orientation(cs_tt));
+    try expect(orientation(cs_tt0) != orientation(cs_t));
 }
