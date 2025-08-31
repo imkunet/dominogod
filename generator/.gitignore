@@ -2,3 +2,5 @@ tester
 tester.o
 bencher
 bencher.o
+verifier
+verifier.o

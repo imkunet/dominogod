@@ -1,8 +1,8 @@
 const std = @import("std");
 const dominoboard = @import("root.zig");
 
-const DominoBoard = dominoboard.DominoBoard(32);
-const runs = 1;
+const DominoBoard = dominoboard.DominoBoard(16);
+const runs = 20;
 
 fn print_ms(ns: i128) void {
     const f_ns: f64 = @floatFromInt(ns);
